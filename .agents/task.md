@@ -1,0 +1,36 @@
+# CrimeLens OS — Task Tracker
+
+- `[x]` **Core 1 — Case Core (Context State Store)**: Created `src/services/caseStore.jsx`
+  - `[x]` Shared store manages cases list, active `currentCase`, systemLogs, warnings, and reasoningTrace
+  - `[x]` Hooked up globally by wrapping `<App />` with `<CaseProvider>` in `src/main.jsx`
+- `[x]` **Core 2 — Cognitive Workspace Layout**: Refactored `src/App.jsx`
+  - `[x]` Left Sidebar collapsible explorer sections (Case, Pattern, Vault, Memory, Saved Reports)
+  - `[x]` Center Panel 12 tabs (Profile, Map, Hypothesis, Gaps, Reasoning, Investigation, Command, Memory, Knowledge, Replay, Confidence Map) with smooth horizontal scrollbar
+  - `[x]` Right Sidebar chat panel with macros & brief triggers
+  - `[x]` Bottom Panel logs and traces diagnostic view
+- `[x]` **Core 3 — Language and Tone Compliance**: Checked throughout all layers
+  - `[x]` Strict usage of advisory vocabulary: "possible", "suggested", "likely", "needs verification", "confidence"
+- `[x]` **Core 4 — Build & Server Verification**:
+  - `[x]` Production build and local dev server active
+- `[x]` **Core 5 — Knowledge Engine**: Created `src/services/knowledgeEngine.js`
+  - `[x]` Mapped standard profiles (Common MO, typical evidence, checklist, interview questions, relevant SOP, typical timeline, and common mistakes) for all 6 crime types
+  - `[x]` Rendered Knowledge Engine tab panel in workspace center view
+- `[x]` **Core 6 — Investigation Replay**: Built interactive animated timeline stepper inside App
+  - `[x]` Stepper timeline with 8 steps: Complaint → Entity → Timeline → Patterns → Contradictions → Hypotheses → Actions → Brief
+  - `[x]` Play/Pause automatic 2.5s stepping interval and manual Back/Next buttons
+- `[x]` **Core 7 — Confidence Map**: Visual progress tracker tab
+  - `[x]` Evalutes 7 facets: Digital, Financial, Witnesses, Forensics, CCTV, Timeline, and Relationships
+  - `[x]` Displays Coverage percentage bar, Confidence level badge (High/Medium/Low), Missing Checklist Items list, and Suggested Action Alert Box
+- `[x]` **Core 8 — Final Copilot QA Engine**: Created specialized assistant in `src/services/copilotService.js`
+  - `[x]` Focuses solely on current case context
+  - `[x]` Direct shortcut buttons for the 6 specific investigative queries
+  - `[x]` Formats responses with: Reasoning, Evidence, Confidence, and Next Steps
+- `[x]` **Core 9 — Visualizations & Enterprise UX**: Created `src/components/Visualizations.jsx`
+  - `[x]` Implemented interactive entity network graph (pulsing SVG circles, dashed moving lines)
+  - `[x]` Implemented interactive timeline sequence with clickable details
+  - `[x]` Implemented financial pipeline animation
+  - `[x]` Implemented pattern frequency heatmap grid
+  - `[x]` Implemented hypothesis scenario board
+  - `[x]` Implemented live circular SVG progress meters for case health
+  - `[x]` Implemented Saved Reports cabinet in Left Panel
+  - `[x]` Implemented Audit Trail ledger tab in Bottom Console

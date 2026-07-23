@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary:       #2563EB;
+  --color-primary-dark:  #1d4ed8;
+  --color-primary-glow:  rgba(37, 99, 235, 0.10);
+  --color-secondary:     #CBD5E1;
+  --color-accent:        #B91C1C;
+  --color-bg-base:       #0F172A;
+  --color-bg-surface:    #1E293B;
+  --color-bg-card:       rgba(15, 23, 42, 0.85);
+  --color-border-subtle: rgba(51, 65, 85, 0.85);
+  --color-text-primary:  #F8FAFC;
+  --color-text-secondary:#CBD5E1;
+  --color-text-muted:    #94A3B8;
+}
+
+:root {
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-bg-base);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Enterprise card panels */
+.glass {
+  background: var(--color-bg-card);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.glass-header {
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+/* Subdued glow — enterprise platforms use very subtle depth cues */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 6px rgba(37, 99, 235, 0.08);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.15);
+  }
+}
+
+.animate-glow {
+  animation: pulse-glow 4s infinite;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Fade-in animation for tab transitions */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Enterprise panel border utility */
+.border-slate-850 {
+  border-color: rgba(51, 65, 85, 0.75);
+}
+
+/* Textarea resize */
+textarea {
+  resize: vertical;
+}
