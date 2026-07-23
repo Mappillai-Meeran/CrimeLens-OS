@@ -1,5 +1,7 @@
 # CrimeLens OS
 
+![CrimeLens OS Banner](./public/github-banner.jpg)
+
 **AI-assisted Investigation Workspace**  
 *SCRB Investigation Platform Prototype*
 

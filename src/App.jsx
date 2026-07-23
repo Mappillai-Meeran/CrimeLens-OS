@@ -88,6 +88,9 @@ import {
   SavedReportsCabinet
 } from './components/Visualizations';
 
+import headerIcon from './assets/header-icon.png';
+import mainLogo from './assets/main-logo.png';
+
 // Detect live vs demo mode once at module evaluation (env is static)
 const LIVE_GEMINI = isLiveMode();
 
@@ -814,12 +817,12 @@ export default function App() {
             className="w-full max-w-sm rounded-xl p-8 flex flex-col items-center text-center space-y-5"
             style={{ background: '#1E293B', border: '1px solid #334155' }}
           >
-            {/* Shield icon */}
+            {/* App Icon */}
             <div
-              className="w-14 h-14 rounded-full flex items-center justify-center"
+              className="w-14 h-14 rounded-full flex items-center justify-center overflow-hidden"
               style={{ background: 'rgba(37,99,235,0.12)', border: '1px solid rgba(37,99,235,0.35)' }}
             >
-              <Shield className="w-7 h-7" style={{ color: '#2563EB' }} />
+              <img src={headerIcon} alt="CrimeLens OS" className="w-8 h-8 object-contain" />
             </div>
 
             {/* Branding */}
@@ -879,8 +882,8 @@ export default function App() {
             
             {/* Header info */}
             <div className="flex flex-col items-center justify-center text-center space-y-2">
-              <div className="p-3.5 bg-primary/10 border border-primary/30 rounded-full shadow-lg shadow-primary/20 animate-pulse">
-                <Shield className="w-8 h-8 text-primary" />
+              <div className="p-3.5 bg-primary/10 border border-primary/30 rounded-full shadow-lg shadow-primary/20 animate-pulse overflow-hidden">
+                <img src={mainLogo} alt="CrimeLens OS Logo" className="w-9 h-9 object-contain" />
               </div>
               <h1 className="text-xl font-black tracking-widest text-white uppercase pt-2">
                 CRIMELENS OS: COGNITIVE INVESTIGATION SUITE
@@ -973,8 +976,8 @@ export default function App() {
       {/* Top Banner / OS Header */}
       <header className="h-14 border-b border-slate-800 bg-slate-950 flex items-center justify-between px-4 shrink-0 z-10">
         <div className="flex items-center gap-3">
-          <div className="p-1.5 bg-blue-950/40 border border-blue-800/30 rounded">
-            <Shield className="w-4 h-4 text-primary" />
+          <div className="p-1.5 bg-blue-950/40 border border-blue-800/30 rounded flex items-center justify-center">
+            <img src={headerIcon} alt="CrimeLens OS Header Icon" className="w-4 h-4 object-contain" />
           </div>
           <div className="flex flex-col justify-center">
             <h1 className="text-[15px] font-extrabold tracking-tight text-[#F8FAFC] leading-none">

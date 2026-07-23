@@ -1,4 +1,5 @@
 import jsPDF from 'jspdf';
+import { pdfLogoBase64 } from '../assets/pdfLogoBase64';
 
 // ----------------------------------------------------
 // Phase 7 — Similar Complaint Finder
@@ -260,16 +261,24 @@ export const generateBriefPDF = (
     doc.setFillColor(15, 23, 42); // slate-900
     doc.rect(0, 0, 210, 38, 'F');
 
-    // Title
+    // Logo & Title
+    try {
+      if (pdfLogoBase64) {
+        doc.addImage(pdfLogoBase64, 'PNG', 12, 6, 26, 14.5);
+      }
+    } catch (e) {
+      console.warn("Could not render PDF header logo:", e);
+    }
+
     doc.setTextColor(167, 139, 250); // Primary purple accent
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text("CRIMELENS AI — INVESTIGATIVE BRIEF", 15, 16);
+    doc.setFontSize(14);
+    doc.text("CRIMELENS AI — INVESTIGATIVE BRIEF", 42, 17);
 
     doc.setTextColor(156, 163, 175);
     doc.setFontSize(8);
     doc.setFont("helvetica", "normal");
-    doc.text("TADA / AUTOMATED ADVISORY DISPATCH ENGINE", 15, 22);
+    doc.text("TADA / AUTOMATED ADVISORY DISPATCH ENGINE", 42, 23);
 
     // Meta information
     doc.setFontSize(8);
