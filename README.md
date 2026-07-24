@@ -2,12 +2,31 @@
 
 ![CrimeLens OS Banner](./public/github-banner.jpg)
 
+![React](https://img.shields.io/badge/React-19-blue?logo=react)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?logo=tailwind-css)
+![Zoho Catalyst](https://img.shields.io/badge/Zoho_Catalyst-Slate_%26_Functions-FF6B00?logo=zoho)
+![Google Gemini](https://img.shields.io/badge/Google_Gemini-2.5_Flash-8E75B2?logo=google)
+![JavaScript](https://img.shields.io/badge/JavaScript-ES2024-F7DF1E?logo=javascript)
+![License](https://img.shields.io/badge/License-KSP_Hackathon-green)
+
 **AI-assisted Investigation Workspace**  
 *SCRB Investigation Platform Prototype*
 
 ---
 
 > **"The AI assists. The officer decides."**
+
+---
+
+## 🌐 Live Deployment
+
+CrimeLens OS is deployed and active in production:
+
+- **Production URL**: [https://crimelens-os.onslate.in](https://crimelens-os.onslate.in)
+- **Web Hosting**: Zoho Catalyst Slate (Static Web Distribution)
+- **Continuous Deployment**: Auto-deployed directly from GitHub `main` branch
+- **Serverless AI Backend**: Powered by Zoho Catalyst Serverless HTTP Function (`geminiProxy`)
 
 ---
 
@@ -66,6 +85,8 @@ Officer Decision
 
 ## Architecture
 
+### Application Architecture
+
 ```
 CrimeLens OS
 │
@@ -95,6 +116,37 @@ CrimeLens OS
     └── Officer Decision Support
 ```
 
+### End-to-End Deployment & AI Flow Architecture
+
+```
+User / Officer
+      │
+      ▼
+React + Vite Frontend (CrimeLens OS Client)
+      │
+      ▼
+Zoho Catalyst Slate (Production Web Hosting)
+      │
+      │ POST /server/geminiProxy
+      ▼
+Catalyst Serverless Function (geminiProxy)
+   [Securely reads: process.env.GEMINI_API_KEY]
+      │
+      │ HTTPS API Request
+      ▼
+Google Gemini 2.5 Flash API
+      │
+      ▼
+AI Response (Sanitized JSON -> Frontend Workspace)
+```
+
+#### Architectural Layers Explained:
+- **React Frontend**: Client application running in the browser. Renders the interactive workspace, timeline visualizations, and entity graph. Never exposes the Gemini API key.
+- **Zoho Catalyst Slate**: Production web application hosting platform for CrimeLens OS, auto-deploying updates from GitHub.
+- **Catalyst Serverless Function (`geminiProxy`)**: Node.js Express Advanced I/O HTTP function that acts as a secure API gateway between CrimeLens OS and Google Gemini.
+- **Google Gemini 2.5 Flash**: Cognitive AI engine providing structured entity extraction and bilingual copilot assistance.
+- **Offline Fallback Engine**: If cloud AI is unreachable or unconfigured, CrimeLens OS automatically switches to built-in regex entity extraction and rule-based copilot Q&A without breaking the user experience.
+
 ---
 
 ## Features
@@ -102,7 +154,7 @@ CrimeLens OS
 | Module | Description |
 |---|---|
 | **Case File Registry** | Create, view, and manage multiple concurrent case files |
-| **AI Extraction** | Gemini 2.5 Flash (live) or built-in regex parser (demo) for structured entity extraction |
+| **AI Extraction** | Live Gemini 2.5 Flash via `geminiProxy` serverless function or built-in regex parser (offline) |
 | **Entity Network Graph** | Interactive SVG graph — zoom, pan, filter by entity type |
 | **Timeline Flow** | Chronological reconstruction with gap detection and conflict highlighting |
 | **SCRB Investigation Memory** | Similarity-scored retrieval from 10 curated historical case studies |
@@ -132,10 +184,12 @@ CrimeLens OS
 | **Frontend Framework** | React 19 |
 | **Build Tool** | Vite 8 |
 | **Styling** | Tailwind CSS v4 |
+| **Web Hosting** | Zoho Catalyst Slate |
+| **Serverless Backend** | Zoho Catalyst Serverless Functions (`geminiProxy` - Node 18 Express) |
+| **AI Engine (Live)** | Google Gemini 2.5 Flash (accessed via `geminiProxy` serverless HTTP function) |
 | **Icons** | Lucide React |
 | **Charts** | Recharts |
-| **PDF Generation** | jsPDF |
-| **AI Engine (Live)** | Google Gemini 2.5 Flash via `@google/generative-ai` |
+| **PDF Generation** | jsPDF + html2canvas |
 | **State Management** | React Context API (`CaseProvider`) |
 | **Persistence** | Browser localStorage |
 | **Speech** | Web Speech API (native browser) |
@@ -143,11 +197,48 @@ CrimeLens OS
 
 ---
 
+## Zoho Catalyst Integration
+
+CrimeLens OS is built natively on the Zoho Catalyst serverless cloud ecosystem:
+
+### Active Catalyst Components
+
+- ✅ **Zoho Catalyst Slate**: Static web app distribution and production hosting environment.
+- ✅ **Zoho Catalyst Serverless Functions (`geminiProxy`)**: Node.js Express Advanced I/O HTTP Function mounted at `/server/geminiProxy`, securely bridging the frontend with Google Gemini AI.
+
+### Planned Catalyst Enhancements (Future Scope)
+
+- ⏳ **Catalyst Data Store**: Relational persistent storage replacing localStorage for multi-station database sync.
+- ⏳ **Catalyst Authentication**: Multi-factor officer login and role-based access control (IO / SHO / DySP).
+- ⏳ **Catalyst API Gateway**: Advanced rate-limiting, custom domain routing, and security policies.
+- ⏳ **Catalyst SmartBrowz**: Automated PDF snapshot generation and Web document rendering.
+- ⏳ **Catalyst QuickML**: Machine learning model hosting for offline automated CDR/IPDR pattern detection.
+
+---
+
+## Security & Privacy
+
+CrimeLens OS implements strict security best practices for law enforcement software:
+
+- **Zero Client Secret Exposure**: The frontend client contains no API keys or secret credentials.
+- **Serverless API Proxy**: All AI communication is proxied through the Zoho Catalyst Serverless Function (`geminiProxy`).
+- **Encrypted Environment Variables**: The Gemini API key is stored securely in Zoho Catalyst Function Environment Variables (`GEMINI_API_KEY`).
+- **Offline Resilience**: Built-in regex and rule-based fallback engines allow full offline functionality without cloud dependencies.
+- **Clean Repository**: No credentials, tokens, or environment files are committed to GitHub.
+
+---
+
 ## Folder Structure
 
 ```
-KSP/
-├── public/                     # Static assets
+CrimeLens-OS/
+├── public/                     # Static assets (favicons, banners, splash screens, OG image)
+├── functions/                  # Zoho Catalyst Serverless Functions
+│   └── geminiProxy/            # Serverless HTTP API proxy for Gemini AI
+│       ├── catalyst-config.json # Function metadata (type: advancedio, stack: node18)
+│       ├── index.js            # Express router handling /extract, /copilot, /health
+│       └── package.json        # Function node dependencies (express)
+│
 ├── src/
 │   ├── App.jsx                 # Main application (all UI, tabs, panels)
 │   ├── main.jsx                # React entry point
@@ -159,10 +250,10 @@ KSP/
 │   ├── services/
 │   │   ├── caseStore.jsx        # Global case state (React Context)
 │   │   ├── storage.js           # localStorage CRUD
-│   │   ├── gemini.js            # Gemini AI integration + fallback parser
+│   │   ├── gemini.js            # Calls /server/geminiProxy with regex fallback
 │   │   ├── scrbRepository.js    # SCRB Memory, Strategy, Questions, Contradictions
 │   │   ├── investigationMemory.js # Case memory persistence + similarity scoring
-│   │   ├── copilotService.js    # Conversational Copilot engine
+│   │   ├── copilotService.js    # Calls /server/geminiProxy with rule-based fallback
 │   │   ├── knowledgeEngine.js   # Police guidelines + legal precedents
 │   │   ├── reasoningCore.js     # Multi-module reasoning engine
 │   │   ├── investigationCore.js # Investigation workflow engine
@@ -175,10 +266,11 @@ KSP/
 │       └── demo/               # Demo complaint text files
 │
 ├── .env.example                # Environment variable template
-├── index.html                  # HTML entry point
+├── catalyst.json               # Catalyst manifest (linking Slate & Functions)
+├── index.html                  # HTML entry point with metadata
 ├── package.json                # Dependencies
 ├── vite.config.js              # Vite configuration
-└── README.md                   # This file
+└── README.md                   # Project documentation
 ```
 
 ---
@@ -193,8 +285,8 @@ KSP/
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd KSP
+git clone https://github.com/Mappillai-Meeran/CrimeLens-OS.git
+cd CrimeLens-OS
 
 # Install dependencies
 npm install
@@ -212,7 +304,7 @@ Opens at `http://localhost:5173`
 ```bash
 npm run build
 ```
-Output in `dist/`
+Output generated in `dist/`
 
 ### Preview Production Build Locally
 
@@ -220,23 +312,20 @@ Output in `dist/`
 npm run preview
 ```
 
-### Live Gemini Mode (Optional)
+### Live Gemini Setup (Zoho Catalyst Serverless Function)
 
-Create a `.env` file from the template:
+The frontend client no longer requires any Gemini API key in local `.env` files.
 
-```bash
-cp .env.example .env
-```
+To configure Live Gemini AI processing:
 
-Add your Gemini API key:
+1. Open **Zoho Catalyst Console** → **Functions** → **geminiProxy**.
+2. Go to **Environment Variables**.
+3. Add variable:
+   - **Key**: `GEMINI_API_KEY`
+   - **Value**: `your_google_gemini_api_key`
+4. Save and deploy the function.
 
-```
-VITE_GEMINI_KEY=your_api_key_here
-```
-
-Get a key at: https://aistudio.google.com/app/apikey
-
-> Without a key, the app runs fully in **Demo Mode** using the built-in regex parser — all features work.
+> **Security Note**: Moving the API key to Catalyst Serverless Function environment variables ensures that `GEMINI_API_KEY` is never exposed in browser requests or client JavaScript bundles. Without a key, CrimeLens OS operates seamlessly in **Demo Mode** using the built-in regex parser and rule-based copilot.
 
 ---
 
@@ -248,7 +337,7 @@ Double-click `Start CrimeLens.bat`
 
 ### Demo Mode
 
-1. Launch the application
+1. Launch the application or visit [https://crimelens-os.onslate.in](https://crimelens-os.onslate.in)
 2. Click **"Initialize Demo OS"** on the landing screen
 3. The workspace loads with 3 demo cases, 10 SCRB memory entries, guidelines, and precedents
 
@@ -286,7 +375,7 @@ Double-click `Start CrimeLens.bat`
 - Voice recognition requires a **modern Chromium-based browser** (Chrome, Edge)
 - PDF export does not support **right-to-left scripts** or **Kannada Unicode** in the generated document
 - localStorage is used for persistence — clearing browser data will reset the workspace
-- Gemini AI extraction requires a **valid API key** and active internet connection; demo mode works offline
+- Live AI extraction uses the Catalyst `geminiProxy` serverless HTTP function; offline demo mode works without any cloud connection
 
 ---
 
