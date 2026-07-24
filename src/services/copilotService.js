@@ -146,11 +146,7 @@ export const askCopilot = async (questionText, currentCase, allCases = [], lang 
     return askCopilotRuleBased(questionText, currentCase, allCases, lang, chatHistory);
   }
 
-  const apiKey = import.meta.env.VITE_GEMINI_KEY;
-
-  if (!apiKey || !apiKey.trim()) {
-    return askCopilotRuleBased(questionText, currentCase, allCases, lang, chatHistory);
-  }
+  const proxyUrl = import.meta.env.VITE_CATALYST_PROXY_URL || '/server/geminiProxy';
 
   // Pre-calculate structured context from CrimeLens internal engines
   const scrbResults = searchSCRBRepository(currentCase);
@@ -198,28 +194,20 @@ Return ONLY a valid JSON object matching this schema. Do NOT use markdown code f
 }`;
 
   try {
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey.trim()}`;
-    const res = await fetch(apiUrl, {
+    const res = await fetch(proxyUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
+        action: 'copilot',
+        prompt
       })
     });
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const result = await res.json();
-    const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-
-    if (rawText) {
-      const cleaned = rawText
-        .replace(/^```json\s*/i, '')
-        .replace(/^```\s*/i, '')
-        .replace(/\s*```$/i, '')
-        .trim();
-      const parsed = JSON.parse(cleaned);
-
+    if (result && result.success && result.data) {
+      const parsed = result.data;
       return {
         answer: parsed.answer || "Advisory summary available from CrimeLens engines.",
         evidence: parsed.evidence || "Primary complaint logs.",
@@ -232,7 +220,7 @@ Return ONLY a valid JSON object matching this schema. Do NOT use markdown code f
       };
     }
   } catch (err) {
-    console.warn("[CrimeLens Copilot] Gemini API call failed — falling back to internal rule-based engine:", err.message);
+    console.warn("[CrimeLens Copilot] Catalyst geminiProxy call failed — falling back to internal rule-based engine:", err.message);
   }
 
   // Fallback to internal rule-based copilot

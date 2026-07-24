@@ -1,0 +1,12 @@
+{
+  "slate": {
+    "source": "dist"
+  },
+  "functions": {
+    "targets": [
+      "geminiProxy"
+    ],
+    "ignore": [],
+    "source": "functions"
+  }
+}

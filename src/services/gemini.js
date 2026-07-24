@@ -301,14 +301,10 @@ export const extractEvidence = async (text, filename = "manual_notes.txt") => {
     return { ...DEMO_EXTRACTIONS.missing_person, evidence_submitted: [filename || "missing_person.txt"] };
   }
 
-  // ── Step 2: Live Gemini API (if VITE_GEMINI_KEY is set in .env) ──
-  // Key is intentionally kept server-side only — never exposed in the UI.
-  const apiKey = import.meta.env.VITE_GEMINI_KEY;
+  // ── Step 2: Live Gemini API via Zoho Catalyst Serverless HTTP Function (geminiProxy) ──
+  const proxyUrl = import.meta.env.VITE_CATALYST_PROXY_URL || '/server/geminiProxy';
 
-  if (apiKey && apiKey.trim()) {
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey.trim()}`;
-
-    const prompt = `Analyze the following crime incident description or evidence and extract all relevant entities, metadata, and a chronological event timeline.
+  const prompt = `Analyze the following crime incident description or evidence and extract all relevant entities, metadata, and a chronological event timeline.
 
 Return ONLY a valid JSON object matching this schema. Do NOT use markdown code fences. Return raw JSON only.
 
@@ -337,31 +333,24 @@ Evidence text to analyze:
 ${text}
 """`;
 
-    try {
-      const result = await fetchWithRetry(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      });
+  try {
+    const result = await fetchWithRetry(proxyUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'extract',
+        text,
+        filename,
+        prompt
+      })
+    });
 
-      const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-      if (rawText) {
-        // Strip any accidental markdown code fences
-        const cleaned = rawText
-          .replace(/^```json\s*/i, '')
-          .replace(/^```\s*/i, '')
-          .replace(/\s*```$/i, '')
-          .trim();
-
-        const parsed = JSON.parse(cleaned);
-        parsed.evidence_submitted = [filename];
-        return parsed;
-      }
-    } catch (err) {
-      console.warn("[CrimeLens] Gemini API call failed — using regex fallback:", err.message);
+    if (result && result.success && result.data) {
+      result.data.evidence_submitted = [filename || "manual_notes.txt"];
+      return result.data;
     }
+  } catch (err) {
+    console.warn("[CrimeLens] Catalyst geminiProxy call failed — using regex fallback:", err.message);
   }
 
   // ── Step 3: Offline Regex Fallback ──
@@ -369,11 +358,10 @@ ${text}
 };
 
 /**
- * Returns true if a real Gemini API key is configured via VITE_GEMINI_KEY.
- * Used purely for displaying the status pill in the navbar.
- * Never exposes the actual key to any UI component.
+ * Returns true if Live Gemini proxy is active.
+ * No API key is exposed in the frontend.
  */
 export const isLiveMode = () => {
-  return Boolean(import.meta.env.VITE_GEMINI_KEY && import.meta.env.VITE_GEMINI_KEY.trim());
+  return import.meta.env.VITE_USE_OFFLINE_ONLY !== "true";
 };
 
