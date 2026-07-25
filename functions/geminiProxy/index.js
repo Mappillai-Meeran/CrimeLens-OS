@@ -1,7 +1,24 @@
 const express = require('express');
 const catalyst = require('zcatalyst-sdk-node');
-try { require('dotenv').config(); } catch (e) {}
-try { require('dotenv').config({ path: '../../.env' }); } catch (e) {}
+const path = require('path');
+
+// Load local .env from project root (works whether running from source or .build)
+const envPaths = [
+  path.resolve(process.cwd(), '.env'),
+  path.resolve(process.cwd(), '../../.env'),
+  path.resolve(__dirname, '../../../.env'),
+  path.resolve(__dirname, '../../.env'),
+];
+try {
+  const dotenv = require('dotenv');
+  for (const p of envPaths) {
+    const result = dotenv.config({ path: p, override: false });
+    if (!result.error) {
+      console.log('[geminiProxy] Loaded .env from:', p);
+      break;
+    }
+  }
+} catch (e) {}
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
@@ -65,8 +82,6 @@ async function getCatalystUserAuth(req) {
 async function callGeminiAPI(apiKey, promptText) {
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey.trim()}`;
   
-  console.log('[DEBUG Backend] Sending POST request to Gemini REST API...');
-  console.log('[DEBUG Backend] Target Model: gemini-flash-latest');
 
   const response = await fetch(apiUrl, {
     method: 'POST',
@@ -76,11 +91,9 @@ async function callGeminiAPI(apiKey, promptText) {
     })
   });
 
-  console.log('[DEBUG Backend] Gemini API returned HTTP status:', response.status, response.statusText);
 
   if (!response.ok) {
     const errText = await response.text();
-    console.error('[DEBUG Backend] Gemini API Error Response Body:', errText);
     throw new Error(`Gemini API HTTP ${response.status}: ${errText}`);
   }
 
@@ -88,7 +101,6 @@ async function callGeminiAPI(apiKey, promptText) {
   const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
   if (!rawText) {
-    console.error('[DEBUG Backend] Empty text candidate in Gemini response payload:', JSON.stringify(result));
     throw new Error("Empty response from Gemini API");
   }
 
@@ -98,7 +110,6 @@ async function callGeminiAPI(apiKey, promptText) {
     .replace(/\s*```$/i, '')
     .trim();
 
-  console.log('[DEBUG Backend] Successfully parsed Gemini API response JSON.');
   return JSON.parse(cleaned);
 }
 
@@ -110,15 +121,9 @@ app.get('/health', (req, res) => {
 
 // Main POST handler supporting action routing
 app.post('/', async (req, res) => {
-  const path = require('path');
-  try { require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), override: true }); } catch (e) {}
-  try { require('dotenv').config({ path: path.resolve(__dirname, '.env'), override: true }); } catch (e) {}
-
   const { action, text, filename, prompt, caseData, caseId, query } = req.body || {};
   const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_KEY || process.env.VITE_GEMINI_API_KEY;
 
-  console.log('[DEBUG Backend] Received POST request on /server/geminiProxy. Action:', action);
-  console.log('[DEBUG Backend] GEMINI_API_KEY Present:', Boolean(apiKey && apiKey.trim()));
 
   try {
     if (action === 'health') {

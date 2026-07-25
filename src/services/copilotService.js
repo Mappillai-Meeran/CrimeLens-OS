@@ -343,12 +343,7 @@ Return ONLY a valid JSON object matching this schema. Do NOT use markdown code f
 }`;
 
   // ── Step 1: Try Catalyst Serverless Function Proxy ──
-  console.log('[DEBUG Frontend] askCopilot called for question:', questionText);
-  console.log('[DEBUG Frontend] Proxy URL:', proxyUrl);
-  console.log('[DEBUG Frontend] Direct API Key Present:', Boolean(directApiKey && directApiKey.trim()));
-
   try {
-    console.log('[DEBUG Frontend] Invoking Catalyst Proxy fetch at:', proxyUrl);
     const res = await fetch(proxyUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -360,13 +355,10 @@ Return ONLY a valid JSON object matching this schema. Do NOT use markdown code f
 
     console.log('[DEBUG Frontend] Catalyst Proxy HTTP Status:', res.status, res.statusText);
     const contentType = res.headers.get('content-type') || '';
-    console.log('[DEBUG Frontend] Response Content-Type:', contentType);
 
     if (res.ok && contentType.includes('application/json')) {
       const result = await res.json();
-      console.log('[DEBUG Frontend] Received Proxy JSON Payload:', result);
       if (result && result.success && result.data) {
-        console.log('[DEBUG Frontend] SUCCESS: Live Gemini response received via Catalyst Proxy!');
         const parsed = result.data;
         return {
           answer: parsed.answer || "Advisory summary available from CrimeLens engines.",
@@ -379,23 +371,21 @@ Return ONLY a valid JSON object matching this schema. Do NOT use markdown code f
           next_action: parsed.next_action || strategy.immediate_actions?.[0]?.recommendation || "Verify parameters."
         };
       } else {
-        console.warn('[DEBUG Frontend] Proxy returned success=false or missing data:', result);
+        console.warn('[CrimeLens Copilot] Proxy returned unexpected response:', result);
       }
     } else {
       const errText = await res.text();
-      console.warn('[DEBUG Frontend] Proxy response not OK or not JSON. Body:', errText);
+      console.warn('[CrimeLens Copilot] Proxy error:', res.status, errText);
     }
   } catch (err) {
-    console.warn("[DEBUG Frontend] Catalyst geminiProxy fetch exception:", err.message);
+    console.warn("[CrimeLens Copilot] Catalyst geminiProxy call failed:", err.message);
   }
 
   // ── Step 2: Try Direct Gemini API Call (if key is set in local env/storage) ──
   if (directApiKey && directApiKey.trim()) {
     try {
-      console.log('[DEBUG Frontend] Attempting Direct Gemini API Call...');
       const parsed = await callGeminiDirectly(directApiKey, prompt);
       if (parsed) {
-        console.log('[DEBUG Frontend] SUCCESS: Live Gemini response received via Direct API!');
         return {
           answer: parsed.answer || "Advisory summary available from CrimeLens engines.",
           evidence: parsed.evidence || "Primary complaint logs.",
@@ -408,11 +398,10 @@ Return ONLY a valid JSON object matching this schema. Do NOT use markdown code f
         };
       }
     } catch (err) {
-      console.warn("[DEBUG Frontend] Direct Gemini API call failed:", err.message);
+      console.warn("[CrimeLens Copilot] Direct Gemini API call failed:", err.message);
     }
   }
 
   // ── Step 3: Fallback to 100% Dynamic Rule-Based Engine ──
-  console.log('[DEBUG Frontend] FALLBACK: Invoking askCopilotRuleBased() dynamic engine');
   return askCopilotRuleBased(questionText, currentCase, allCases, lang, chatHistory);
 };
