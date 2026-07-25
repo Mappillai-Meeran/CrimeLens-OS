@@ -972,7 +972,7 @@ export default function App() {
             <div className="border-t border-slate-850 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-950/40 p-4 rounded-xl">
               <div className="text-left space-y-1">
                 <span className="text-[10px] text-primary font-bold uppercase tracking-wider block">One-Click Demonstration Sandbox</span>
-                <p className="text-[9px] text-gray-400 max-w-lg leading-relaxed">Initialize a fully populated, ready-to-present sandbox seeder with 10 landmarks, guidelines, precedents, timeline models, and chat history logs.</p>
+                <p className="text-[9px] text-gray-400 max-w-lg leading-relaxed">Initialize a fully populated, ready-to-present sandbox with <span className="text-cyan-400 font-bold">11 cases across 7 Karnataka districts</span> — Bengaluru Urban, Mysuru, Dharwad, Dakshina Kannada, Kolar, Bengaluru Central and Belagavi — complete with SCRB landmarks, evidence, money trails, and chat history.</p>
               </div>
               <button
                 onClick={handleInitializeDemoSandbox}
@@ -1027,9 +1027,14 @@ export default function App() {
 
           <button
             onClick={() => setLang(prev => (prev === 'en' ? 'kn' : 'en'))}
-            className="flex items-center gap-1.5 text-[10px] bg-slate-900 border border-slate-700 hover:border-slate-500 px-2.5 py-1 rounded transition cursor-pointer font-mono"
+            className="flex items-center gap-1.5 text-[10px] px-2.5 py-1 rounded transition cursor-pointer font-mono"
             title="Toggle Language (English / Kannada)"
+            style={{
+              background: lang === 'kn' ? 'rgba(251,191,36,0.10)' : 'rgba(6,182,212,0.08)',
+              border: lang === 'kn' ? '1px solid rgba(251,191,36,0.45)' : '1px solid rgba(6,182,212,0.35)',
+            }}
           >
+            <span style={{ fontSize: '9px', color: '#94A3B8', marginRight: '2px' }}>LANG</span>
             <span className={lang === 'en' ? 'text-cyan-400 font-bold' : 'text-slate-500'}>EN</span>
             <span className="text-slate-600">/</span>
             <span className={lang === 'kn' ? 'text-amber-400 font-bold' : 'text-slate-500'}>ಕನ್ನಡ</span>
