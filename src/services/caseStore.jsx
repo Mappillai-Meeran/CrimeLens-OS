@@ -1,7 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getComplaints, saveComplaint, deleteComplaint, resetToDemo, clearComplaints } from './storage';
 import { detectPatterns } from './patternDetection';
 import { calculateSimilarity, getEvidenceGaps } from './investigation';
+import {
+  saveInvestigationToCatalyst,
+  loadInvestigationsFromCatalyst,
+  deleteInvestigationFromCatalyst
+} from './catalystDataStoreService';
 
 // Define the React context
 const CaseContext = createContext(null);
@@ -405,6 +409,7 @@ export const CaseProvider = ({ children }) => {
     // Merge updates into active case
     setCurrentCase(prev => {
       const next = { ...prev, ...updated };
+      saveInvestigationToCatalyst(next);
       return next;
     });
     setCases(prev => prev.map(c => c.id === updated.id ? { ...c, ...updated } : c));
@@ -440,6 +445,7 @@ export const CaseProvider = ({ children }) => {
 
     setCases(prev => [newCase, ...prev]);
     setCurrentCase(newCase);
+    saveInvestigationToCatalyst(newCase);
     appendLog(`Created new Case ${newId} in operating system.`);
   };
 
@@ -447,6 +453,7 @@ export const CaseProvider = ({ children }) => {
     const nextList = cases.filter(c => c.id !== caseId);
     setCases(nextList);
     deleteComplaint(caseId); // update low-level storage
+    deleteInvestigationFromCatalyst(caseId);
     appendLog(`Case ${caseId} deleted from database.`);
 
     if (currentCase && currentCase.id === caseId) {
