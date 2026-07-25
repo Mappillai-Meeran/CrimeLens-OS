@@ -173,7 +173,7 @@ AI Response (Sanitized JSON -> Frontend Workspace)
 | **Command Center** | Live investigation health metrics strip |
 | **PDF Generator** | Comprehensive investigation brief with disclaimer |
 | **Audit Trail** | Chronological officer activity log |
-| **Demo Mode** | Fully pre-loaded sandbox with 3 demo cases |
+| **Demo Mode** | Fully pre-loaded sandbox with 11 demo cases across 7 districts |
 
 ---
 
@@ -339,7 +339,7 @@ Double-click `Start CrimeLens.bat`
 
 1. Launch the application or visit [https://crimelens-os.onslate.in](https://crimelens-os.onslate.in)
 2. Click **"Initialize Demo OS"** on the landing screen
-3. The workspace loads with 3 demo cases, 10 SCRB memory entries, guidelines, and precedents
+3. The workspace loads with 11 demo cases across 7 districts, 10 SCRB memory entries, guidelines, and precedents
 
 ### Live Investigation
 
