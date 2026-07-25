@@ -110,7 +110,23 @@ async function callGeminiAPI(apiKey, promptText) {
     .replace(/\s*```$/i, '')
     .trim();
 
-  return JSON.parse(cleaned);
+  try {
+    return JSON.parse(cleaned);
+  } catch (parseErr) {
+    // Attempt regex extraction of JSON object if Gemini included surrounding prose
+    const match = cleaned.match(/\{[\s\S]*\}/);
+    if (match) {
+      try {
+        return JSON.parse(match[0]);
+      } catch (e) {}
+    }
+    // Safe object fallback
+    return {
+      answer: cleaned,
+      evidence: "Complaint parameters",
+      confidence: "Likely"
+    };
+  }
 }
 
 // Health check endpoint
