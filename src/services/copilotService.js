@@ -252,41 +252,12 @@ ${(currentCase.timeline || []).map((t, i) => `${i + 1}. ${typeof t === 'string' 
 };
 
 /**
- * Helper: Call Gemini API directly (for client-side / local dev fallback when proxy is offline).
- */
-const callGeminiDirectly = async (apiKey, prompt) => {
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey.trim()}`;
-  const response = await fetch(apiUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.2,
-        maxOutputTokens: 1024,
-        responseMimeType: 'application/json'
-      }
-    })
-  });
-
-  if (!response.ok) throw new Error(`Gemini Direct API returned ${response.status}`);
-  const data = await response.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Empty text candidate from Gemini API');
-  const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-  return JSON.parse(cleaned);
-};
-
-/**
  * Conversational Investigation Copilot with Live Gemini AI Integration & Offline Fallback.
  */
 export const askCopilot = async (questionText, currentCase, allCases = [], lang = "en", chatHistory = []) => {
   if (!currentCase) {
     return askCopilotRuleBased(questionText, currentCase, allCases, lang, chatHistory);
   }
-
-  const proxyUrl = import.meta.env.VITE_CATALYST_PROXY_URL || '/server/geminiProxy';
-  const directApiKey = import.meta.env.VITE_GEMINI_API_KEY || (typeof window !== 'undefined' && window.localStorage?.getItem('gemini_api_key'));
 
   // Pre-calculate structured context from CrimeLens internal engines
   const scrbResults = searchSCRBRepository(currentCase);
@@ -349,6 +320,7 @@ Return ONLY a valid JSON object matching this schema. Do NOT use markdown code f
     '/server/geminiProxy',
     'https://project-rainfall-60073743483.development.catalystserverless.in/server/geminiProxy/'
   ].filter(Boolean)));
+  const proxyErrors = [];
 
   // ── Step 1: Try Catalyst Serverless Function Proxy ──
   for (const endpoint of proxyEndpoints) {
@@ -379,33 +351,22 @@ Return ONLY a valid JSON object matching this schema. Do NOT use markdown code f
             next_action: parsed.next_action || strategy.immediate_actions?.[0]?.recommendation || "Verify parameters."
           };
         }
+        proxyErrors.push(`${endpoint}: proxy returned JSON without success/data`);
+      } else {
+        const body = await res.text().catch(() => '');
+        proxyErrors.push(`${endpoint}: HTTP ${res.status} ${res.statusText}${body ? ` - ${body.slice(0, 180)}` : ''}`);
       }
     } catch (err) {
+      proxyErrors.push(`${endpoint}: ${err.message}`);
       console.warn(`[CrimeLens Copilot] Fetch to ${endpoint} failed:`, err.message);
     }
   }
 
-  // ── Step 2: Try Direct Gemini API Call (if key is set in local env/storage) ──
-  if (directApiKey && directApiKey.trim()) {
-    try {
-      const parsed = await callGeminiDirectly(directApiKey, prompt);
-      if (parsed) {
-        return {
-          answer: parsed.answer || "Advisory summary available from CrimeLens engines.",
-          evidence: parsed.evidence || "Primary complaint logs.",
-          matches: parsed.matches || scrbResults.landmarks.map(m => m.id).join(", "),
-          guideline: parsed.guideline || scrbResults.guidelines.map(g => `${g.title} SOP`).join("; "),
-          precedent: parsed.precedent || scrbResults.precedents.map(p => p.relevant_principle).join("; "),
-          reasoning: parsed.reasoning || "Reasoning chain evaluated from parameters.",
-          confidence: parsed.confidence || "Likely",
-          next_action: parsed.next_action || strategy.immediate_actions?.[0]?.recommendation || "Verify parameters."
-        };
-      }
-    } catch (err) {
-      console.warn("[CrimeLens Copilot] Direct Gemini API call failed:", err.message);
-    }
-  }
+  console.warn('[CrimeLens Copilot] Live Gemini proxy unavailable, using rule-based fallback:', proxyErrors);
 
-  // ── Step 3: Fallback to 100% Dynamic Rule-Based Engine ──
-  return askCopilotRuleBased(questionText, currentCase, allCases, lang, chatHistory);
+  const fallback = askCopilotRuleBased(questionText, currentCase, allCases, lang, chatHistory);
+  return {
+    ...fallback,
+    reasoning: `${fallback.reasoning} Live Gemini proxy unavailable; fallback used.`
+  };
 };

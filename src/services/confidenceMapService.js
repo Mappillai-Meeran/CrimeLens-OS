@@ -15,16 +15,24 @@ export const getConfidenceMap = (currentCase) => {
   const timeline = currentCase.timeline || [];
   const relationships = currentCase.relationships || [];
 
+  // Safe item name extractor helper for strings or objects { name, desc }
+  const getItemName = (item) => {
+    if (!item) return '';
+    if (typeof item === 'string') return item;
+    if (typeof item === 'object') return item.name || item.desc || '';
+    return String(item);
+  };
+
   // Helper arrays for verification
   const docs = evidence.documents || [];
   const photos = evidence.photos || [];
   const audios = evidence.audio || [];
 
   // 1. Digital Evidence
-  const hasDigital = entities.phones?.length > 0 || docs.some(d => d.toLowerCase().includes('chat') || d.toLowerCase().includes('screenshot'));
+  const hasDigital = entities.phones?.length > 0 || docs.some(d => getItemName(d).toLowerCase().includes('chat') || getItemName(d).toLowerCase().includes('screenshot'));
   const digitalMissing = [];
   if (!entities.phones?.length) digitalMissing.push("Suspect phone number subscriber registration card (KYC)");
-  if (!docs.some(d => d.toLowerCase().includes('screenshot') || d.toLowerCase().includes('chat'))) digitalMissing.push("Verified digital chat screenshots / logs");
+  if (!docs.some(d => getItemName(d).toLowerCase().includes('screenshot') || getItemName(d).toLowerCase().includes('chat'))) digitalMissing.push("Verified digital chat screenshots / logs");
   const digitalCoverage = hasDigital ? (entities.phones?.length > 0 && digitalMissing.length === 0 ? 100 : 60) : 0;
   const digitalConf = digitalCoverage >= 80 ? "High" : digitalCoverage > 0 ? "Medium" : "Low";
   const digitalAction = digitalCoverage < 100 
@@ -79,12 +87,12 @@ export const getConfidenceMap = (currentCase) => {
 
   // 4. Forensics
   // For standard domestic / cyber / missing: forensics means medical certificates, cyber signatures, IP logs
-  const hasForensics = docs.some(d => d.toLowerCase().includes('cert') || d.toLowerCase().includes('medical')) || audios.length > 0;
+  const hasForensics = docs.some(d => getItemName(d).toLowerCase().includes('cert') || getItemName(d).toLowerCase().includes('medical')) || audios.length > 0;
   const forensicsMissing = [];
-  if (type === "Assault" && !docs.some(d => d.toLowerCase().includes('cert') || d.toLowerCase().includes('medical'))) {
+  if (type === "Assault" && !docs.some(d => getItemName(d).toLowerCase().includes('cert') || getItemName(d).toLowerCase().includes('medical'))) {
     forensicsMissing.push("Certified medical examination report detailing physical injuries");
   }
-  if (type === "Cyber Fraud" && !docs.some(d => d.toLowerCase().includes('pdf') || d.toLowerCase().includes('receipt'))) {
+  if (type === "Cyber Fraud" && !docs.some(d => getItemName(d).toLowerCase().includes('pdf') || getItemName(d).toLowerCase().includes('receipt'))) {
     forensicsMissing.push("Digitally signed gateway transaction receipt");
   }
   const forensicsCoverage = hasForensics ? 100 : 0;
@@ -102,7 +110,7 @@ export const getConfidenceMap = (currentCase) => {
   };
 
   // 5. CCTV
-  const hasCctv = photos.some(p => p.toLowerCase().includes('cctv') || p.toLowerCase().includes('grab')) || currentCase.evidence?.photos?.length > 0;
+  const hasCctv = photos.some(p => getItemName(p).toLowerCase().includes('cctv') || getItemName(p).toLowerCase().includes('grab')) || currentCase.evidence?.photos?.length > 0;
   const cctvMissing = [];
   if (!hasCctv) cctvMissing.push("CCTV exit corridor video clip / grab matching event timestamp");
   const cctvCoverage = hasCctv ? 100 : 0;

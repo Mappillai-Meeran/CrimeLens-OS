@@ -78,16 +78,28 @@ async function getCatalystUserAuth(req) {
   };
 }
 
+function getGeminiApiKey() {
+  return process.env.GEMINI_API_KEY;
+}
+
+function getGeminiModel() {
+  return process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+}
+
 // Helper function to call Gemini REST API
 async function callGeminiAPI(apiKey, promptText) {
-  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey.trim()}`;
+  const model = getGeminiModel();
+  const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey.trim()}`;
   
 
   const response = await fetch(apiUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: promptText }] }]
+      contents: [{ parts: [{ text: promptText }] }],
+      generationConfig: {
+        responseMimeType: 'application/json'
+      }
     })
   });
 
@@ -131,19 +143,27 @@ async function callGeminiAPI(apiKey, promptText) {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_KEY || process.env.VITE_GEMINI_API_KEY;
-  res.json({ status: 'ok', live: Boolean(apiKey && apiKey.trim()) });
+  const apiKey = getGeminiApiKey();
+  res.json({
+    status: 'ok',
+    live: Boolean(apiKey && apiKey.trim()),
+    model: getGeminiModel()
+  });
 });
 
 // Main POST handler supporting action routing
 app.post('/', async (req, res) => {
   const { action, text, filename, prompt, caseData, caseId, query } = req.body || {};
-  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_KEY || process.env.VITE_GEMINI_API_KEY;
+  const apiKey = getGeminiApiKey();
 
 
   try {
     if (action === 'health') {
-      return res.json({ status: 'ok', live: true });
+      return res.json({
+        status: 'ok',
+        live: Boolean(apiKey && apiKey.trim()),
+        model: getGeminiModel()
+      });
     }
 
     // ── Task 1: Catalyst Data Store Integration Actions ──
@@ -224,8 +244,6 @@ app.post('/', async (req, res) => {
     }
 
     // ── Gemini Proxy Actions ──
-    const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_KEY || process.env.VITE_GEMINI_API_KEY;
-
     if (action === 'extract') {
       if (!text) {
         return res.status(400).json({ error: 'Missing required field: text' });
