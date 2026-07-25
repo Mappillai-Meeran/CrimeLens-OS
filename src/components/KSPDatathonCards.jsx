@@ -425,11 +425,22 @@ export function RoleBasedAuthBadge() {
   }, []);
 
   return (
-    <div className="flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 px-2 py-1 rounded-md text-[8.5px] font-mono">
-      <Lock className="w-3 h-3 text-cyan-400" />
-      <span className="text-gray-300 font-bold">{userRole}</span>
-      <span className="text-gray-600">|</span>
-      <span className="text-emerald-400 text-[8px]">{status}</span>
+    <div className="flex items-center gap-1 bg-slate-900/90 border border-slate-800 px-2 py-0.5 rounded-md text-[8.5px] font-mono">
+      <Lock className="w-3 h-3 text-cyan-400 shrink-0" />
+      <select
+        value={userRole}
+        onChange={(e) => setUserRole(e.target.value)}
+        className="bg-transparent border-0 text-gray-200 font-bold font-mono focus:outline-none cursor-pointer text-[8.5px] appearance-none pr-1"
+        style={{ backgroundColor: 'transparent', color: '#e2e8f0' }}
+        title="Catalyst Auth Role Selector"
+      >
+        <option value="Investigating Officer" style={{ background: '#0f172a', color: '#fff' }}>Investigating Officer</option>
+        <option value="Station House Officer (SHO)" style={{ background: '#0f172a', color: '#fff' }}>Station House Officer (SHO)</option>
+        <option value="Cyber Cell Analyst" style={{ background: '#0f172a', color: '#fff' }}>Cyber Cell Analyst</option>
+        <option value="Administrator" style={{ background: '#0f172a', color: '#fff' }}>Administrator</option>
+      </select>
+      <span className="text-slate-600">|</span>
+      <span className="text-emerald-400 text-[8px] shrink-0">{status}</span>
     </div>
   );
 }
