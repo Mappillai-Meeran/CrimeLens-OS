@@ -88,19 +88,38 @@ Officer Decision
 
 ## Architecture
 
+### Application Architecture
+
+```
+CrimeLens OS
+│
+├── CASE CORE
+│   ├── Complaint Intake (Manual Entry / File Upload / AI Extraction)
+│   ├── Evidence Cabinet (Documents, Photos, Audio)
+│   ├── Timeline Engine
+│   └── Entity Extraction
+│
+├── REASONING CORE
+│   ├── SCRB Investigation Memory (10 historical case studies)
+│   ├── Contradiction Detection Engine
+│   ├── Modus Operandi Detection
+│   ├── AI Question Generator
+│   └── Strategy Engine
+│
+├── COPILOT CORE
+│   ├── Natural Language Q&A
+│   ├── Voice Input (English / Kannada)
+│   ├── Text-to-Speech
+│   └── Explainability Layer (Reasoning Trace & Audit)
+│
+└── COMMAND CORE
+    ├── Investigation Brief (PDF Export)
+    ├── Audit Trail
+    ├── Confidence Map (7-Facet Assessment)
+    └── Officer Decision Support
+```
+
 ### End-to-End Deployment & AI Flow Architecture
-
-```
-React (Slate)
-     │
-     ▼
-Catalyst Serverless (geminiProxy)
-     │
-     ├── Google Gemini API
-     └── Offline Rule-Based Engine
-```
-
-Detailed Flow:
 
 ```
 User / Officer (Browser)
@@ -118,13 +137,13 @@ Catalyst Serverless Function (geminiProxy)
       │
       ├───► Live API Request ──► Google Gemini API ──► Structured JSON Response
       │
-      └───► Fallback Engine (If API key offline / rate-limited) ──► Rule-Based Advisory Engine
+      └───► Fallback Engine (If API offline / rate-limited) ──► Rule-Based Advisory Engine
 ```
 
 #### Architectural Layers Explained:
 - **React Frontend**: Client application running in the browser. Renders the interactive workspace, timeline visualizations, and entity graph. Never exposes the Gemini API key.
 - **Zoho Catalyst Slate**: Production web application hosting platform for CrimeLens OS, auto-deploying updates from GitHub.
-- **Catalyst Serverless Function (`geminiProxy`)**: Node.js Express Advanced I/O HTTP function that acts as a secure API gateway between CrimeLens OS and Google Gemini.
+- **Catalyst Serverless Function (`geminiProxy`)**: Node.js Express Advanced I/O HTTP function that acts as a secure API gateway between CrimeLens OS and Google Gemini API.
 - **Google Gemini API**: Cognitive AI engine providing structured entity extraction and bilingual copilot assistance.
 - **Offline Fallback Engine**: If cloud AI is unreachable or rate-limited, CrimeLens OS automatically switches to built-in regex entity extraction and rule-based copilot Q&A without breaking the user experience.
 
