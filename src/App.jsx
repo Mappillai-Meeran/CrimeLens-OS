@@ -3713,7 +3713,7 @@ export default function App() {
                         const newUserMsg = { id: Date.now(), sender: "user", text: qText };
                         const tempMessages = [...messages, newUserMsg];
                         setMessages(tempMessages);
-                        const answerObj = await askCopilot(q.key, currentCase, cases, lang, messages);
+                        const answerObj = await askCopilot(qText, currentCase, cases, lang, messages);
                         const newAiMsg = { id: Date.now() + 1, sender: "ai", text: answerObj };
                         const updated = [...tempMessages, newAiMsg];
                         setMessages(updated);
