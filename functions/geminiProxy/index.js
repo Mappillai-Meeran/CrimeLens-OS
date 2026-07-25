@@ -192,17 +192,7 @@ app.post('/', async (req, res) => {
         return res.status(400).json({ error: 'Missing required field: text' });
       }
       if (!apiKey || !apiKey.trim()) {
-        return res.json({
-          success: true,
-          data: {
-            incident_type: "Cyber Fraud",
-            summary: text.slice(0, 150) + "...",
-            confidence: "85%",
-            entities: { names: [], phones: [], upi_ids: [], bank_accounts: [], locations: [], dates: [], amounts: [], vehicles: [], urls: [], usernames: [] },
-            timeline: ["Incident registered in local workspace."],
-            evidence_submitted: [filename || 'manual_notes.txt']
-          }
-        });
+        return res.status(500).json({ success: false, error: 'GEMINI_API_KEY is not configured in backend environment variables.' });
       }
 
       const extractionPrompt = `Analyze the following crime incident description or evidence and extract all relevant entities, metadata, and a chronological event timeline.
@@ -244,15 +234,7 @@ ${text}
         return res.status(400).json({ error: 'Missing required field: prompt' });
       }
       if (!apiKey || !apiKey.trim()) {
-        return res.json({
-          success: true,
-          data: {
-            answer: "Advisory summary available from CrimeLens engines. (Set GEMINI_API_KEY in local environment for live Gemini generation).",
-            evidence: "Primary complaint logs.",
-            confidence: "Likely",
-            next_action: "Verify complaint parameters and evidence log."
-          }
-        });
+        return res.status(500).json({ success: false, error: 'GEMINI_API_KEY is not configured in backend environment variables.' });
       }
       const parsed = await callGeminiAPI(apiKey, prompt);
       return res.json({ success: true, data: parsed });
