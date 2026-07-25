@@ -63,6 +63,9 @@ async function getCatalystUserAuth(req) {
 async function callGeminiAPI(apiKey, promptText) {
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey.trim()}`;
   
+  console.log('[DEBUG Backend] Sending POST request to Gemini REST API...');
+  console.log('[DEBUG Backend] Target Model: gemini-flash-latest');
+
   const response = await fetch(apiUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -71,8 +74,11 @@ async function callGeminiAPI(apiKey, promptText) {
     })
   });
 
+  console.log('[DEBUG Backend] Gemini API returned HTTP status:', response.status, response.statusText);
+
   if (!response.ok) {
     const errText = await response.text();
+    console.error('[DEBUG Backend] Gemini API Error Response Body:', errText);
     throw new Error(`Gemini API HTTP ${response.status}: ${errText}`);
   }
 
@@ -80,6 +86,7 @@ async function callGeminiAPI(apiKey, promptText) {
   const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
   if (!rawText) {
+    console.error('[DEBUG Backend] Empty text candidate in Gemini response payload:', JSON.stringify(result));
     throw new Error("Empty response from Gemini API");
   }
 
@@ -89,6 +96,7 @@ async function callGeminiAPI(apiKey, promptText) {
     .replace(/\s*```$/i, '')
     .trim();
 
+  console.log('[DEBUG Backend] Successfully parsed Gemini API response JSON.');
   return JSON.parse(cleaned);
 }
 
@@ -101,6 +109,15 @@ app.get('/health', (req, res) => {
 // Main POST handler supporting action routing
 app.post('/', async (req, res) => {
   const { action, text, filename, prompt, caseData, caseId, query } = req.body || {};
+  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_KEY || process.env.VITE_GEMINI_API_KEY;
+
+  console.log('[DEBUG Backend] Received POST request on /server/geminiProxy. Action:', action);
+  console.log('[DEBUG Backend] GEMINI_API_KEY Present:', Boolean(apiKey && apiKey.trim()));
+
+  try {
+    if (action === 'health') {
+      return res.json({ status: 'ok', live: true });
+    }
 
   try {
     if (action === 'health') {
