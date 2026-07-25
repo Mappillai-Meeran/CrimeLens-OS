@@ -87,6 +87,17 @@ import {
   LiveHealthIndicators,
   SavedReportsCabinet
 } from './components/Visualizations';
+import {
+  CrimePatternInsightsCard,
+  SocioDemographicCard,
+  BehavioralProfileCard,
+  ProactivePreventionCard,
+  CrimeTrendWidget,
+  HotspotDetectionWidget,
+  PredictiveAnalyticsCard,
+  EarlyWarningBanner,
+  RoleBasedAuthBadge
+} from './components/KSPDatathonCards';
 
 import headerIcon from './assets/header-icon.png';
 import mainLogo from './assets/main-logo.png';
@@ -1034,6 +1045,8 @@ export default function App() {
             <Trash2 className="w-3 h-3" /> Wipe DB
           </button>
 
+          <RoleBasedAuthBadge />
+
           <div className="flex items-center gap-1 bg-slate-900 border border-slate-700 px-2.5 py-1 rounded text-[10px] font-mono">
             <User className="w-3 h-3 text-primary" />
             <span className="text-slate-300">OFFICER-771</span>
@@ -1598,6 +1611,9 @@ export default function App() {
                 {centerTab === 'summary' && (
                   <div className="space-y-4 animate-fadeIn">
                     
+                    {/* Early Warning Banner */}
+                    <EarlyWarningBanner currentCase={currentCase} cases={cases} />
+
                     {/* Live Telemetry Health Rings at the top */}
                     <LiveHealthIndicators currentCase={currentCase} />
 
@@ -1613,6 +1629,9 @@ export default function App() {
                         {currentCase.summary || "No active statement description logged in the case file."}
                       </p>
                     </div>
+
+                    {/* Crime Pattern Insights Card */}
+                    <CrimePatternInsightsCard currentCase={currentCase} cases={cases} />
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       
@@ -1733,6 +1752,22 @@ export default function App() {
                         </div>
 
                       </div>
+                    </div>
+
+                    {/* KSP Challenge 01 Intelligence Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <SocioDemographicCard currentCase={currentCase} />
+                      <BehavioralProfileCard currentCase={currentCase} />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <PredictiveAnalyticsCard currentCase={currentCase} cases={cases} />
+                      <ProactivePreventionCard currentCase={currentCase} />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <CrimeTrendWidget currentCase={currentCase} cases={cases} />
+                      <HotspotDetectionWidget currentCase={currentCase} cases={cases} />
                     </div>
 
                     {/* Timeline Sequence & Evidence Cards list */}

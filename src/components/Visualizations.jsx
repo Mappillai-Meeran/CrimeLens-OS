@@ -258,18 +258,21 @@ export function EntityRelationshipGraph({ currentCase }) {
 
   // Dynamically compile diverse relationship nodes
   const allNodes = [
-    { id: 'victim', label: currentCase.victim || 'Complainant', type: 'Person', color: '#10b981', x: 80, y: 150, details: "Primary reporter/victim of the reported incident." },
+    { id: 'victim', label: currentCase.victim || 'Complainant', type: 'Victim', color: '#10b981', x: 80, y: 150, details: "Primary reporter/victim of the reported incident." },
+    ...(currentCase.suspects || []).map((s, i) => ({
+      id: `suspect-${i}`, label: s, type: 'Suspect', color: '#f43f5e', x: 360, y: 220 + i * 60, details: "Identified or alleged suspect profile."
+    })),
     ...(ents.phones || []).map((p, i) => ({
       id: `phone-${i}`, label: p, type: 'Phone Number', color: '#06b6d4', x: 220, y: 80 + i * 80, details: "Extracted mobile number linked to communication trail."
     })),
     ...(ents.upi_ids || []).map((u, i) => ({
-      id: `upi-${i}`, label: u, type: 'UPI ID', color: '#f59e0b', x: 360, y: 100 + i * 90, details: "Payment handle siphoning financial assets."
+      id: `upi-${i}`, label: u, type: 'UPI ID', color: '#f59e0b', x: 360, y: 90 + i * 80, details: "Payment handle siphoning financial assets."
     })),
     ...(ents.bank_accounts || []).map((b, i) => ({
       id: `bank-${i}`, label: b, type: 'Bank Account', color: '#ec4899', x: 480, y: 150 + i * 80, details: "Beneficiary bank account / mule node."
     })),
     ...(ents.vehicles || []).map((v, i) => ({
-      id: `vehicle-${i}`, label: v, type: 'Vehicle', color: '#f43f5e', x: 220, y: 220 + i * 60, details: "Identified suspect transit vehicle."
+      id: `vehicle-${i}`, label: v, type: 'Vehicle', color: '#e11d48', x: 220, y: 220 + i * 60, details: "Identified suspect transit vehicle."
     })),
     ...(ents.locations || []).map((l, i) => ({
       id: `loc-${i}`, label: l, type: 'Location', color: '#a855f7', x: 80, y: 240 + i * 60, details: "Physical geolocation logged in complaint."
@@ -289,20 +292,27 @@ export function EntityRelationshipGraph({ currentCase }) {
   const hasBank = nodes.some(n => n.type === 'Bank Account');
   const hasLoc = nodes.some(n => n.type === 'Location');
   const hasVeh = nodes.some(n => n.type === 'Vehicle');
+  const hasSuspect = nodes.some(n => n.type === 'Suspect');
 
   if (hasPhone) {
-    edges.push({ source: 'victim', target: 'phone-0', label: 'Called' });
+    edges.push({ source: 'victim', target: 'phone-0', label: 'Call Contact' });
+    if (hasSuspect) {
+      edges.push({ source: 'phone-0', target: 'suspect-0', label: 'Used By Suspect' });
+    }
     if (hasUPI) {
-      edges.push({ source: 'phone-0', target: 'upi-0', label: 'Shared Device' });
+      edges.push({ source: 'phone-0', target: 'upi-0', label: 'Linked Device' });
     }
   }
   if (hasUPI && hasBank) {
-    edges.push({ source: 'upi-0', target: 'bank-0', label: 'Transferred Money' });
+    edges.push({ source: 'upi-0', target: 'bank-0', label: 'Transaction Connection' });
+  }
+  if (hasSuspect && hasUPI) {
+    edges.push({ source: 'suspect-0', target: 'upi-0', label: 'Receives Proceeds' });
   }
   if (hasVeh) {
-    edges.push({ source: 'victim', target: 'vehicle-0', label: 'Owns' });
+    edges.push({ source: 'victim', target: 'vehicle-0', label: 'Observed' });
     if (hasLoc) {
-      edges.push({ source: 'vehicle-0', target: 'loc-0', label: 'Visited' });
+      edges.push({ source: 'vehicle-0', target: 'loc-0', label: 'Transit Location' });
     }
   }
 
@@ -355,8 +365,8 @@ export function EntityRelationshipGraph({ currentCase }) {
     <div className="glass p-4 rounded-xl border border-slate-800 space-y-4 animate-fadeIn">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
         <div>
-          <h4 className="text-[10px] font-bold text-white uppercase font-mono tracking-wider">Investigation Relationship Graph</h4>
-          <p className="text-[8px] text-gray-550 font-mono">Zoomable, filterable interactive SVG entity mapping.</p>
+          <h4 className="text-[10px] font-bold text-white uppercase font-mono tracking-wider">Criminal Network Graph</h4>
+          <p className="text-[8px] text-gray-550 font-mono">Zoomable, filterable interactive SVG entity mapping & network connections.</p>
         </div>
 
         {/* Toolbar: Filter & Zoom */}
@@ -370,7 +380,8 @@ export function EntityRelationshipGraph({ currentCase }) {
               style={{ backgroundColor: '#0f172a', color: '#fff' }}
             >
               <option value="ALL"    style={{ background: '#0f172a', color: '#fff' }}>ALL TYPES</option>
-              <option value="Person" style={{ background: '#0f172a', color: '#fff' }}>Person</option>
+              <option value="Victim" style={{ background: '#0f172a', color: '#fff' }}>Victim</option>
+              <option value="Suspect" style={{ background: '#0f172a', color: '#fff' }}>Suspect</option>
               <option value="Phone Number" style={{ background: '#0f172a', color: '#fff' }}>Phone Number</option>
               <option value="UPI ID" style={{ background: '#0f172a', color: '#fff' }}>UPI ID</option>
               <option value="Bank Account" style={{ background: '#0f172a', color: '#fff' }}>Bank Account</option>
