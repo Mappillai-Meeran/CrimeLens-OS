@@ -115,7 +115,7 @@ async function callGeminiAPI(apiKey, promptText) {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_KEY || process.env.VITE_GEMINI_API_KEY;
   res.json({ status: 'ok', live: Boolean(apiKey && apiKey.trim()) });
 });
 

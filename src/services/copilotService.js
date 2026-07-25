@@ -353,7 +353,6 @@ Return ONLY a valid JSON object matching this schema. Do NOT use markdown code f
       })
     });
 
-    console.log('[DEBUG Frontend] Catalyst Proxy HTTP Status:', res.status, res.statusText);
     const contentType = res.headers.get('content-type') || '';
 
     if (res.ok && contentType.includes('application/json')) {
