@@ -1,5 +1,7 @@
 const express = require('express');
 const catalyst = require('zcatalyst-sdk-node');
+try { require('dotenv').config(); } catch (e) {}
+try { require('dotenv').config({ path: '../../.env' }); } catch (e) {}
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
