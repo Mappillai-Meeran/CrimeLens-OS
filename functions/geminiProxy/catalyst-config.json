@@ -2,8 +2,7 @@
   "deployment": {
     "name": "geminiProxy",
     "stack": "node18",
-    "type": "advancedio",
-    "env_variables": {}
+    "type": "advancedio"
   },
   "execution": {
     "main": "index.js"
