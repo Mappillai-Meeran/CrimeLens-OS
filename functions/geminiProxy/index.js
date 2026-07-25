@@ -110,6 +110,10 @@ app.get('/health', (req, res) => {
 
 // Main POST handler supporting action routing
 app.post('/', async (req, res) => {
+  const path = require('path');
+  try { require('dotenv').config({ path: path.resolve(__dirname, '../../.env'), override: true }); } catch (e) {}
+  try { require('dotenv').config({ path: path.resolve(__dirname, '.env'), override: true }); } catch (e) {}
+
   const { action, text, filename, prompt, caseData, caseId, query } = req.body || {};
   const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_KEY || process.env.VITE_GEMINI_API_KEY;
 
