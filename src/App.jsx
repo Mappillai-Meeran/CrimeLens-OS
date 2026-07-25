@@ -183,15 +183,18 @@ export default function App() {
   const [pdfGenerating, setPdfGenerating] = useState(false);
 
   // Copilot AI Panel Chat States
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      sender: 'ai',
-      text: "Workspace loaded. I am your Cognitive Assistant. Select a case from the registry to inspect parameters, or ask me to analyze financial flows and check evidence completeness."
-    }
-  ]);
+  const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+
+  // Sync Copilot chat messages with active case chat history
+  useEffect(() => {
+    if (currentCase) {
+      setMessages(currentCase.chatHistory || []);
+    } else {
+      setMessages([]);
+    }
+  }, [currentCase?.id]);
 
   // New Suspect/Witness Inputs
   const [newSuspectName, setNewSuspectName] = useState('');

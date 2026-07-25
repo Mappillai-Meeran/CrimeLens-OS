@@ -301,7 +301,8 @@ Return ONLY a valid JSON object matching this schema. Do NOT use markdown code f
       })
     });
 
-    if (res.ok) {
+    const contentType = res.headers.get('content-type') || '';
+    if (res.ok && contentType.includes('application/json')) {
       const result = await res.json();
       if (result && result.success && result.data) {
         const parsed = result.data;
