@@ -342,42 +342,46 @@ Return ONLY a valid JSON object matching this schema. Do NOT use markdown code f
   "next_action": "${strategy.immediate_actions?.[0]?.recommendation || 'Verify complaint parameters.'}"
 }`;
 
+  // Candidate proxy endpoints: configured env, relative path, and direct Catalyst function URL
+  const proxyEndpoints = Array.from(new Set([
+    import.meta.env.VITE_CATALYST_PROXY_URL,
+    '/server/geminiProxy',
+    'https://project-rainfall-60073743483.development.catalystserverless.in/server/geminiProxy/'
+  ].filter(Boolean)));
+
   // ── Step 1: Try Catalyst Serverless Function Proxy ──
-  try {
-    const res = await fetch(proxyUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'copilot',
-        prompt
-      })
-    });
+  for (const endpoint of proxyEndpoints) {
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'copilot',
+          prompt
+        })
+      });
 
-    const contentType = res.headers.get('content-type') || '';
+      const contentType = res.headers.get('content-type') || '';
 
-    if (res.ok && contentType.includes('application/json')) {
-      const result = await res.json();
-      if (result && result.success && result.data) {
-        const parsed = result.data;
-        return {
-          answer: parsed.answer || "Advisory summary available from CrimeLens engines.",
-          evidence: parsed.evidence || "Primary complaint logs.",
-          matches: parsed.matches || scrbResults.landmarks.map(m => m.id).join(", "),
-          guideline: parsed.guideline || scrbResults.guidelines.map(g => `${g.title} SOP`).join("; "),
-          precedent: parsed.precedent || scrbResults.precedents.map(p => p.relevant_principle).join("; "),
-          reasoning: parsed.reasoning || "Reasoning chain evaluated from parameters.",
-          confidence: parsed.confidence || "Likely",
-          next_action: parsed.next_action || strategy.immediate_actions?.[0]?.recommendation || "Verify parameters."
-        };
-      } else {
-        console.warn('[CrimeLens Copilot] Proxy returned unexpected response:', result);
+      if (res.ok && contentType.includes('application/json')) {
+        const result = await res.json();
+        if (result && result.success && result.data) {
+          const parsed = result.data;
+          return {
+            answer: parsed.answer || "Advisory summary available from CrimeLens engines.",
+            evidence: parsed.evidence || "Primary complaint logs.",
+            matches: parsed.matches || scrbResults.landmarks.map(m => m.id).join(", "),
+            guideline: parsed.guideline || scrbResults.guidelines.map(g => `${g.title} SOP`).join("; "),
+            precedent: parsed.precedent || scrbResults.precedents.map(p => p.relevant_principle).join("; "),
+            reasoning: parsed.reasoning || "Reasoning chain evaluated from parameters.",
+            confidence: parsed.confidence || "Likely",
+            next_action: parsed.next_action || strategy.immediate_actions?.[0]?.recommendation || "Verify parameters."
+          };
+        }
       }
-    } else {
-      const errText = await res.text();
-      console.warn('[CrimeLens Copilot] Proxy error:', res.status, errText);
+    } catch (err) {
+      console.warn(`[CrimeLens Copilot] Fetch to ${endpoint} failed:`, err.message);
     }
-  } catch (err) {
-    console.warn("[CrimeLens Copilot] Catalyst geminiProxy call failed:", err.message);
   }
 
   // ── Step 2: Try Direct Gemini API Call (if key is set in local env/storage) ──

@@ -302,7 +302,11 @@ export const extractEvidence = async (text, filename = "manual_notes.txt") => {
   }
 
   // ── Step 2: Live Gemini API via Zoho Catalyst Serverless HTTP Function (geminiProxy) ──
-  const proxyUrl = import.meta.env.VITE_CATALYST_PROXY_URL || '/server/geminiProxy';
+  const proxyEndpoints = Array.from(new Set([
+    import.meta.env.VITE_CATALYST_PROXY_URL,
+    '/server/geminiProxy',
+    'https://project-rainfall-60073743483.development.catalystserverless.in/server/geminiProxy/'
+  ].filter(Boolean)));
 
   const prompt = `Analyze the following crime incident description or evidence and extract all relevant entities, metadata, and a chronological event timeline.
 
@@ -333,24 +337,26 @@ Evidence text to analyze:
 ${text}
 """`;
 
-  try {
-    const result = await fetchWithRetry(proxyUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'extract',
-        text,
-        filename,
-        prompt
-      })
-    });
+  for (const endpoint of proxyEndpoints) {
+    try {
+      const result = await fetchWithRetry(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'extract',
+          text,
+          filename,
+          prompt
+        })
+      });
 
-    if (result && result.success && result.data) {
-      result.data.evidence_submitted = [filename || "manual_notes.txt"];
-      return result.data;
+      if (result && result.success && result.data) {
+        result.data.evidence_submitted = [filename || "manual_notes.txt"];
+        return result.data;
+      }
+    } catch (err) {
+      console.warn(`[CrimeLens Extraction] Fetch to ${endpoint} failed:`, err.message);
     }
-  } catch (err) {
-    console.warn("[CrimeLens] Catalyst geminiProxy call failed — using regex fallback:", err.message);
   }
 
   // ── Step 3: Offline Regex Fallback ──
