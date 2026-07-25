@@ -308,21 +308,61 @@ Output generated in `dist/`
 
 ---
 
-## Running CrimeLens OS
+### Live Gemini Setup (Zoho Catalyst Serverless Function)
 
-### Demo Sandbox Mode
+The frontend client no longer requires any Gemini API key in local `.env` files.
 
-1. Launch the application or visit [https://crimelens-os.onslate.in](https://crimelens-os.onslate.in)
-2. Click **"Initialize Demo OS"** on the landing screen
-3. The workspace loads with 11 demo cases across 7 Karnataka districts, 10 SCRB memory entries, guidelines, and legal precedents.
+To configure Live Gemini AI processing:
 
-### Live Investigation Workflow
+1. Open **Zoho Catalyst Console** → **Functions** → **geminiProxy**.
+2. Go to **Environment Variables**.
+3. Add variable:
+   - **Key**: `GEMINI_API_KEY`
+   - **Value**: `your_google_gemini_api_key`
+4. Save and deploy the function.
 
-1. Click **"New Case"** in the Case File Registry
-2. Paste complaint text in the Intake area
-3. Click **Extract Evidence** (AI or regex parsing)
-4. Navigate tabs: Overview → Analysis → Reasoning → Knowledge → Reports
-5. Ask Copilot questions in English or Kannada with audio output enabled.
+> **Security Note**: Moving the API key to Catalyst Serverless Function environment variables ensures that `GEMINI_API_KEY` is never exposed in browser requests or client JavaScript bundles. Without a key, CrimeLens OS operates seamlessly in **Demo Mode** using the built-in regex parser and rule-based copilot.
+
+---
+
+## Screenshots
+
+| View | Description |
+|---|---|
+| **Landing Screen** | CrimeLens OS initialization and demo sandbox |
+| **Workspace** | Main investigation workspace with case loaded |
+| **Entity Graph** | Interactive entity relationship network |
+| **Timeline** | Reconstructed chronological timeline with conflict detection |
+| **Copilot** | Conversational AI assistant panel |
+| **PDF Brief** | Investigation brief export |
+
+---
+
+## Future Scope
+
+The following enhancements are candidates for a production version:
+
+- Integration with live SCRB case database via secure API
+- Role-based access control (IO / SHO / DySP dashboards)
+- Multi-officer collaborative workspace
+- IPC/BNSS 2023 updated legal section mapping
+- Geospatial crime cluster mapping (GIS integration)
+- Automated CDR / IPDR analysis import
+- Integration with CCTNS (Crime and Criminal Tracking Network)
+- Audit-grade PDF with digital signature and chain-of-custody tracking
+- Native Android / iOS app for field officers
+- Secure offline-first PWA with sync capability
+
+---
+
+## Disclaimer
+
+**CrimeLens OS is a prototype developed for the KSP Datathon.**  
+All data used in Demo Mode is fictional and created solely for demonstration purposes.  
+This system does not replace officer judgment, legal process, or established investigation procedures.  
+All AI outputs are advisory suggestions only.
+
+**The AI assists. The officer decides.**
 
 ---
 
@@ -331,6 +371,5 @@ Output generated in `dist/`
 Developed for the **Karnataka State Police (KSP) Datathon 2026 — Challenge 1: AI-Assisted Investigation Workspace**.  
 Powered by **Zoho Catalyst** and **Google Gemini API**.
 
-Internal use only.
+Internal use only. Not for public distribution.
 
-**The AI assists. The officer decides.**
