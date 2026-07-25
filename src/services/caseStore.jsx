@@ -325,9 +325,13 @@ export const CaseProvider = ({ children }) => {
   useEffect(() => {
     if (!currentCase) return;
 
-    // Save active case state to local storage and update list
+    // Save active case state to local storage
     const updatedList = cases.map(c => c.id === currentCase.id ? currentCase : c);
-    localStorage.setItem('crimelens_complaints', JSON.stringify(updatedList));
+    try {
+      localStorage.setItem('crimelens_complaints', JSON.stringify(updatedList));
+    } catch (e) {
+      console.warn("localStorage quota exceeded", e);
+    }
 
     // Dynamic Reasoning & warnings compilation
     const runReasoningCore = () => {
@@ -338,16 +342,18 @@ export const CaseProvider = ({ children }) => {
 
       // 1. Analyze overlaps (Similarity checks)
       const similarCases = calculateSimilarity(currentCase, cases.filter(c => c.id !== currentCase.id));
-      trace.push(`[Similarity Engine] Calculated matching indices across ${cases.length - 1} reference cases.`);
+      trace.push(`[Similarity Engine] Calculated matching indices across ${Math.max(0, cases.length - 1)} reference cases.`);
       
       similarCases.forEach(match => {
-        if (match.score > 40) {
-          trace.push(`[Overlapping Linkage] Case ${match.id} correlates with active case at ${match.score}% score.`);
+        const matchId = match.complaint?.id || match.id;
+        const score = match.similarity ?? match.score ?? 0;
+        if (score > 40) {
+          trace.push(`[Overlapping Linkage] Case ${matchId} correlates with active case at ${score}% score.`);
           warnList.push({
-            id: `WARN-LINK-${match.id}`,
-            severity: match.score > 70 ? "High" : "Medium",
-            message: `Possible cross-case correlation: ${currentCase.id} sharing indicators with ${match.id} (Similarity: ${match.score}%)`,
-            details: match.reasons.join(", ")
+            id: `WARN-LINK-${matchId}`,
+            severity: score > 70 ? "High" : "Medium",
+            message: `Possible cross-case correlation: ${currentCase.id} sharing indicators with ${matchId} (Similarity: ${score}%)`,
+            details: (match.reasons || []).join(", ")
           });
         }
       });
@@ -368,27 +374,12 @@ export const CaseProvider = ({ children }) => {
         }
       });
 
-      // 3. Score calculation
-      const baseScore = Math.min(100, Math.round(
-        (currentCase.entities?.names?.length ? 15 : 0) +
-        (currentCase.entities?.phones?.length ? 15 : 0) +
-        (currentCase.timeline?.length ? 20 : 0) +
-        (currentCase.evidence?.photos?.length || currentCase.evidence?.documents?.length ? 20 : 0) +
-        (currentCase.notes?.length ? 15 : 0) +
-        (currentCase.relationships?.length ? 15 : 0)
-      ));
-      
-      if (currentCase.investigation_score !== baseScore) {
-        // Update currentCase with dynamically verified score
-        setCurrentCase(prev => ({ ...prev, investigation_score: baseScore }));
-      }
-
       setReasoningTrace(trace);
       setWarnings(warnList);
     };
 
     runReasoningCore();
-  }, [currentCase, cases]);
+  }, [currentCase?.id, cases.length]);
 
   // Utility to append system logs
   const appendLog = (message) => {
