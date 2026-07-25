@@ -1,3 +1,4 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { getComplaints, saveComplaint, deleteComplaint, resetToDemo, clearComplaints } from './storage';
 import { detectPatterns } from './patternDetection';
 import { calculateSimilarity, getEvidenceGaps } from './investigation';
