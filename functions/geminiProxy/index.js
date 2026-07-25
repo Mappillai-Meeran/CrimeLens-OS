@@ -91,12 +91,15 @@ async function getCatalystUserAuth(req) {
 }
 
 function getGeminiApiKey() {
-  return process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_KEY || process.env.VITE_GEMINI_API_KEY;
+  return (
+    process.env.GEMINI_API_KEY ||
+    process.env.VITE_GEMINI_KEY ||
+    process.env.VITE_GEMINI_API_KEY
+  );
 }
 
 function getGeminiModel() {
-  // gemini-2.0-flash is stable and available for all API keys
-  return process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  return process.env.GEMINI_MODEL || 'gemini-1.5-flash';
 }
 
 // Helper function to call Gemini REST API
@@ -155,10 +158,15 @@ async function callGeminiAPI(apiKey, promptText) {
 // Health check endpoint
 app.get('/health', (req, res) => {
   const apiKey = getGeminiApiKey();
+  const allKeys = Object.keys(process.env).filter(k =>
+    k.includes('GEMINI') || k.includes('VITE') || k.includes('API')
+  );
   res.json({
     status: 'ok',
     live: Boolean(apiKey && apiKey.trim()),
-    model: getGeminiModel()
+    model: getGeminiModel(),
+    key_prefix: apiKey ? apiKey.slice(0, 8) + '...' : null,
+    env_keys_found: allKeys
   });
 });
 
