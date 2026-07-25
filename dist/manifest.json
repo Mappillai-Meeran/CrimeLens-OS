@@ -1,0 +1,26 @@
+{
+  "short_name": "CrimeLens OS",
+  "name": "CrimeLens OS — AI-assisted Investigation Workspace",
+  "description": "AI-assisted police investigation workspace and cognitive suite",
+  "icons": [
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#090d16",
+  "theme_color": "#090d16",
+  "display": "standalone"
+}
