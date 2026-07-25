@@ -3814,20 +3814,34 @@ export default function App() {
                           isUser ? "bg-primary/20 border border-primary/30 text-white" : "bg-slate-900/65 border border-slate-855 text-gray-300"
                         )}>
                           {typeof msg.text === "string" ? (
-                            <p>{msg.text}</p>
+                            <div className="whitespace-pre-line text-slate-100 font-normal leading-relaxed text-[10.5px]">{msg.text}</div>
                           ) : (
                             <div className="space-y-2">
-                              <p className="text-white font-bold">{msg.text.answer}</p>
-                              <div className="text-[8.5px] space-y-1 border-t border-slate-800/40 pt-1.5 text-gray-400">
-                                <p><strong className="text-gray-500">{t("Evidence:", "ಪುರಾವೆ:")}</strong> {msg.text.evidence}</p>
-                                <p><strong className="text-gray-500">{t("Guideline:", "ಮಾರ್ಗಸೂಚಿ:")}</strong> {msg.text.guideline}</p>
-                                <p><strong className="text-gray-500">{t("Precedent:", "ಪೂರ್ವನಿದರ್ಶನ:")}</strong> {msg.text.precedent}</p>
-                                <p><strong className="text-gray-500">{t("Reasoning:", "ತಾರ್ಕಿಕ ವಿವರಣೆ:")}</strong> {msg.text.reasoning}</p>
-                                <p className="text-green-400"><strong className="text-gray-500">{t("Confidence:", "ವಿಶ್ವಾಸಾರ್ಹತೆ:")}</strong> ⬡ {msg.text.confidence}</p>
-                                <p className="text-cyan-400"><strong className="text-gray-500">{t("Next Action:", "ಮುಂದಿನ ಕ್ರಮ:")}</strong> {msg.text.next_action}</p>
+                              <div className="whitespace-pre-line text-slate-100 font-normal leading-relaxed text-[10.5px] space-y-1">
+                                {msg.text.answer}
+                              </div>
+                              <div className="text-[8.5px] space-y-1 border-t border-slate-800/60 pt-2 text-gray-400">
+                                {msg.text.evidence && msg.text.evidence !== "N/A" && (
+                                  <p><strong className="text-gray-500">{t("Evidence:", "ಪುರಾವೆ:")}</strong> {msg.text.evidence}</p>
+                                )}
+                                {msg.text.guideline && msg.text.guideline !== "N/A" && msg.text.guideline !== "Standard Police SOP" && (
+                                  <p><strong className="text-gray-500">{t("Guideline:", "ಮಾರ್ಗಸೂಚಿ:")}</strong> {msg.text.guideline}</p>
+                                )}
+                                {msg.text.precedent && msg.text.precedent !== "N/A" && (
+                                  <p><strong className="text-gray-500">{t("Precedent:", "ಪೂರ್ವನಿದರ್ಶನ:")}</strong> {msg.text.precedent}</p>
+                                )}
+                                {msg.text.reasoning && msg.text.reasoning !== "N/A" && (
+                                  <p><strong className="text-gray-500">{t("Reasoning:", "ತಾರ್ಕಿಕ ವಿವರಣೆ:")}</strong> {msg.text.reasoning}</p>
+                                )}
+                                {msg.text.confidence && (
+                                  <p className="text-green-400"><strong className="text-gray-500">{t("Confidence:", "ವಿಶ್ವಾಸಾರ್ಹತೆ:")}</strong> ⬡ {msg.text.confidence}</p>
+                                )}
+                                {msg.text.next_action && msg.text.next_action !== "N/A" && (
+                                  <p className="text-cyan-400"><strong className="text-gray-500">{t("Next Action:", "ಮುಂದಿನ ಕ್ರಮ:")}</strong> {msg.text.next_action}</p>
+                                )}
                               </div>
                               <button
-                                onClick={() => handleSpeakAnswer(msg.text)}
+                                onClick={() => handleSpeakAnswer(typeof msg.text === "string" ? msg.text : msg.text.answer)}
                                 className="mt-1 p-1 bg-slate-950 border border-slate-800 hover:border-slate-700 text-gray-400 hover:text-white rounded transition cursor-pointer flex items-center gap-1 text-[8px] font-mono"
                               >
                                 <Volume2 className="w-2.5 h-2.5 text-cyan-400" /> {t("Speak Response", "ಉತ್ತರವನ್ನು ಓದಿ")}

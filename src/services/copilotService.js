@@ -67,114 +67,163 @@ export const askCopilotRuleBased = (questionText, currentCase, allCases = [], la
 
   // ── 100% Dynamic Case-Specific Intent Routing ─────────────────────────────
 
-  // 1. Vehicle & Mobility Queries
-  if (query.includes("vehicle") || query.includes("motorcycle") || query.includes("bike") || query.includes("plate") || query.includes("registration") || query.includes("ka-") || query.includes("car")) {
+  // 1. Complaint Summary / Overview / Describe
+  if (query.includes("summary") || query.includes("summarize") || query.includes("overview") || query.includes("describe") || query.includes("case info")) {
+    answer = `• Victim Profiled: ${victimName}
+• Incident Category: ${type}
+• Loss / Crime Vector: ${summaryText}
+• Extracted Identifiers: ${phoneList ? 'Phone: ' + phoneList + ' | ' : ''}${upiList ? 'UPI: ' + upiList + ' | ' : ''}${bankList ? 'Bank: ' + bankList + ' | ' : ''}${vehicleList ? 'Vehicle: ' + vehicleList : 'Digital logs'}
+• Priority Directive: ${nextActionText}`;
+    evidence = evidenceList;
+
+  // 2. Missing Evidence / Gaps / Readiness / Evidence Audit
+  } else if (query.includes("missing") || query.includes("gap") || query.includes("readiness") || query.includes("collect") || query.includes("weak") || query.includes("lack")) {
+    const missingItems = (reliability.missing_evidence || []).length > 0
+      ? reliability.missing_evidence
+      : [
+          type.includes("Assault") ? "Certified Hospital Injury / Wound Certificate" : "Certified Bank Transaction Audit Statement",
+          "Telecom Nodal Subscriber CDR Logs",
+          "WhatsApp / Chat Application IP Metadata",
+          "Sec 65B Electronic Evidence Certificate"
+        ];
+
+    answer = `Missing Evidence Checklist for Case ${currentCase.id}:
+
+${missingItems.map((item, idx) => `• Missing: ${item}\n  Reason: Critical to establish statutory chain of custody and ${type} prosecution`).join('\n\n')}
+
+• Investigation Readiness Score: ${currentCase.investigation_score || 75}%`;
+    evidence = `Current Cabinet Files: ${evidenceList}`;
+    next_action = `Requisition missing item: ${missingItems[0]}`;
+
+  // 3. Contradictions / Inconsistencies / Suspicious / Discrepancies
+  } else if (query.includes("contradiction") || query.includes("discrepancy") || query.includes("inconsistency") || query.includes("suspicious") || query.includes("conflict")) {
+    answer = `Investigation Contradictions & Discrepancies for Case ${currentCase.id}:
+
+• Parameter Verification Notice:
+  Complaint text logs incident as '${type}' involving victim ${victimName}.
+• Extracted Endpoint Check:
+  ${phoneList ? 'Phone ' + phoneList + ' flagged for subscriber verification.' : 'Digital handles require bank nodal verification.'}
+• Timeline Correlation:
+  Time gap between initial incident occurrence and formal FIR registration must be verified against witness statements (${witnessList}).
+• Procedural Verification:
+  Ensure Sec 65B Certificate is attached before submitting digital evidence ${evidenceList} to court.`;
+    reasoning = contradictions.map(c => c.description).join(" | ") || "Corroborating narrative statements with extracted technical endpoints.";
+
+  // 4. Investigation Plan / Action Plan / Next Steps / Strategy / What to do
+  } else if (query.includes("plan") || query.includes("step") || query.includes("strategy") || query.includes("next action") || query.includes("recommend") || query.includes("what should")) {
+    answer = `Prioritized Investigation Plan for Case ${currentCase.id}:
+
+Priority 1: Freeze Beneficiary & Communication Vectors
+• Action: Issue immediate debit freeze / block notice for ${upiList || bankList || phoneList || 'suspect handles'}.
+
+Priority 2: Statutory Evidence Preservation
+• Action: Issue Section 91 CrPC Notice to ISP/Telecom for CDR and IP logs.
+
+Priority 3: Witness & Victim Corroboration
+• Action: Record detailed supplementary statement of victim (${victimName}) and witness (${witnessList}).
+
+Priority 4: Physical & Technical Surveillance
+• Action: ${vehicleList ? 'Submit RTO lookup notice for vehicle ' + vehicleList : 'Obtain CCTV footage from incident vicinity'}.
+
+Priority 5: Suspect Interrogation
+• Target: Primary contact ${suspectList || phoneList || 'unidentified suspect'}.`;
+    next_action = `Execute Priority 1: Freeze ${upiList || bankList || phoneList || 'beneficiary handle'}.`;
+
+  // 5. Suspect Analysis / Who to Interrogate / Priority Target
+  } else if (query.includes("suspect") || query.includes("interrogate") || query.includes("question") || query.includes("target") || query.includes("who") || query.includes("accused")) {
+    answer = `Suspect & Contact Interrogation Priority for Case ${currentCase.id}:
+
+Highest Priority Target:
+• Target: ${phoneList ? 'Phone Handle ' + phoneList : suspectList}
+• Reason: First contact vector; directly linked to victim (${victimName}) and ${type} incident.
+
+Secondary Target:
+• Target: ${upiList ? 'Beneficiary UPI ' + upiList : 'Unidentified Accomplice / Rider'}
+• Reason: Beneficiary endpoint receiving unauthorized transaction/assault vector.
+
+Key Witness Corroboration:
+• Witness: ${witnessList}
+• Reason: Present during timeline progression; can identify suspect physical traits or voice.`;
+    evidence = `Statements of ${victimName} & ${witnessList}`;
+
+  // 6. Applicable Laws / Sections / IPC / BNS / Legal Provisions
+  } else if (query.includes("law") || query.includes("section") || query.includes("bns") || query.includes("ipc") || query.includes("legal") || query.includes("act") || query.includes("court")) {
+    answer = `Applicable Legal Provisions & Guidelines for Case ${currentCase.id}:
+
+• Primary Offense Charge:
+  ${type.includes("Assault") ? "Section 309 BNS / Sec 392 IPC (Robbery with Assault)" : "Section 318(4) BNS / Sec 420 IPC (Cheating & Dishonestly Inducing Delivery of Property)"}
+
+• Cyber / IT Offense Charge:
+  ${type.includes("Cyber") || phoneList || upiList ? "Section 66D IT Act (Punishment for Cheating by Personation using Computer Resource)" : "Section 351 BNS (Criminal Intimidation)"}
+
+• Statutory Evidence Certificate:
+  Section 65B Indian Evidence Act / Sec 63 BSA (Mandatory for electronic records ${evidenceList})
+
+• Applied Police Guideline:
+  ${guideline} (${precedent})`;
+
+  // 7. Vehicle & Mobility Queries
+  } else if (query.includes("vehicle") || query.includes("motorcycle") || query.includes("bike") || query.includes("plate") || query.includes("registration") || query.includes("ka-") || query.includes("car")) {
     if (vehicleList) {
-      answer = `Vehicle Intelligence for Case ${currentCase.id} (${type}):
-Extracted vehicle registration is ${vehicleList}. Suspects operated vehicle ${vehicleList} in connection with victim ${victimName}. Priority procedure: Submit RTO vehicle registration lookup notice for owner identification.`;
-      evidence = `Vehicle Registration: ${vehicleList}, ${evidenceList}`;
+      answer = `Vehicle Intelligence & Action Plan:
+• Extracted Registration: ${vehicleList}
+• Incident Linkage: Operated by suspects during ${type} against victim ${victimName}.
+• Directive: Issue immediate RTO lookup notice to identify registered vehicle owner and address.`;
+      evidence = `Vehicle Registration: ${vehicleList}`;
       next_action = `Issue RTO ownership verification notice for vehicle ${vehicleList}.`;
     } else {
-      answer = `No suspect vehicle indicators are logged for Case ${currentCase.id} (${type}).
-This incident operates primarily via telecom/digital channels (${phoneList ? 'Phone: ' + phoneList + '; ' : ''}${upiList ? 'UPI: ' + upiList + '; ' : ''}${bankList ? 'Bank: ' + bankList : ''}). Priority actions focus on bank beneficiary account freezing and telecom CDR nodal tracing.`;
-      evidence = `Digital handles: ${phoneList ? 'Phone (' + phoneList + '), ' : ''}${upiList ? 'UPI (' + upiList + ')' : 'Complaint text'}`;
+      answer = `Vehicle Intelligence:
+• Status: No suspect vehicle registered for Case ${currentCase.id} (${type}).
+• Digital Focus: Investigation proceeds via telecom/bank vectors (${phoneList || upiList || bankList || 'digital logs'}).`;
     }
 
-  // 2. Medical / Injury / Hospital / Wound Queries
-  } else if (query.includes("wound") || query.includes("medical") || query.includes("hospital") || query.includes("injury") || query.includes("certificate") || query.includes("doctor")) {
-    if (type.toLowerCase().includes("assault") || type.toLowerCase().includes("injury") || type.toLowerCase().includes("violence")) {
-      answer = `Medical & Injury Assessment for Case ${currentCase.id} (${type}):
-Physical assault was reported involving victim ${victimName} and witness (${witnessList}). Priority investigative procedure: Request an official Wound Certificate / Medical Injury Assessment from the local government hospital to establish physical injury proof under court prosecution.`;
-      evidence = `Witness statement of ${witnessList}, hospital casualty dispatch log`;
-      next_action = `Request immediate injury certificate from local government hospital.`;
-    } else {
-      answer = `Physical wound certificates are not applicable for Case ${currentCase.id} (${type}).
-Investigation priorities for this ${type} file focus on securing certified bank transaction statements, telecom CDR logs, and digital chat transcripts.`;
-      next_action = nextActionText;
-    }
+  // 8. Medical / Injury / Hospital Queries
+  } else if (query.includes("wound") || query.includes("medical") || query.includes("hospital") || query.includes("injury") || query.includes("doctor")) {
+    answer = `Medical & Physical Injury Audit:
+• Case Category: ${type}
+• Status: ${type.toLowerCase().includes("assault") ? "Physical injury reported for victim " + victimName : "No physical wound reported for digital fraud file"}.
+• Directive: ${type.toLowerCase().includes("assault") ? "Requisition official Wound Certificate from local government casualty hospital." : "Focus on bank audit and CDR preservation."}`;
 
-  // 3. Legal SOP / Guideline / Section Queries
-  } else if (query.includes("sop") || query.includes("guideline") || query.includes("law") || query.includes("section") || query.includes("bns") || query.includes("ipc") || query.includes("procedure")) {
-    answer = `Applicable Legal SOP & Guidelines for Case ${currentCase.id} (${type}):
-• Applied SOP Guideline: ${guideline}
-• Relevant Legal Precedent: ${precedent}
-• Mandatory Statutory Procedure: Preserve digital & documentary evidence (${evidenceList}) under Sec 65B Evidence Certificate and follow Crime Branch investigation standards for ${type}.`;
+  // 9. Timeline & Chronology Queries
+  } else if (query.includes("timeline") || query.includes("sequence") || query.includes("chronology") || query.includes("time") || query.includes("event")) {
+    answer = `Chronological Event Reconstruction for Case ${currentCase.id}:
 
-  // 4. Suspect & Witness Queries
-  } else if (query.includes("suspect") || query.includes("witness") || query.includes("who") || query.includes("people") || query.includes("person") || query.includes("grabber") || query.includes("rider") || query.includes("actor")) {
-    answer = `Suspect & Witness Registry for Case ${currentCase.id} (${type}):
-• Logged Suspects: ${suspectList}
-• Logged Witness(es): ${witnessList}
-• Victim / Complainant: ${victimName}
-• Incident Category: ${type}`;
-    evidence = `Statements of ${victimName} and ${witnessList}`;
+${(currentCase.timeline || []).map((t, i) => `${i + 1}. ${typeof t === 'string' ? t : (t.date ? t.date + ' — ' : '') + t.event}`).join('\n') || '1. Incident reported by complainant.\n2. Investigation file created.'}`;
 
-  // 5. Timeline / Chronology Queries
-  } else if (query.includes("timeline") || query.includes("sequence") || query.includes("chronology") || query.includes("time") || query.includes("when") || query.includes("event")) {
-    answer = `Reconstructed Timeline for Case ${currentCase.id} (${type}):
-${(currentCase.timeline || []).map(t => '• ' + (typeof t === 'string' ? t : (t.date ? t.date + ': ' : '') + t.event)).join('\n') || '• Timeline steps registered in file.'}`;
+  // 10. Crime Pattern / Modus Operandi Queries
+  } else if (query.includes("pattern") || query.includes("modus") || query.includes("mo") || query.includes("similar") || query.includes("landmark")) {
+    answer = `Crime Pattern & Modus Operandi (MO) Analysis:
+• Identified MO: ${type} targeting victim ${victimName}.
+• SCRB Landmark Similarity: Historical match found with landmark cases [${matches}].
+• Risk Assessment: ${currentCase.confidence || 'High probability of organized network involvement'}.`;
 
-  // 6. Missing Evidence / Readiness Queries
-  } else if (query.includes("missing") || query.includes("gap") || query.includes("readiness") || query.includes("weak") || query.includes("collect")) {
-    answer = `Evidence Cabinet & Readiness Audit for Case ${currentCase.id} (${type}):
-• Investigation Readiness Score: ${currentCase.investigation_score || 75}%
-• Missing Recommended Evidence: ${(reliability.missing_evidence || []).join(', ') || 'None'}
-• Active Cabinet Evidence: ${evidenceList}`;
-    next_action = `Acquire missing evidence: ${(reliability.missing_evidence || [])[0] || nextActionText}`;
+  // 11. Recovery Probability / Risk Queries
+  } else if (query.includes("recovery") || query.includes("risk") || query.includes("probability") || query.includes("chance")) {
+    answer = `Recovery Probability & Risk Assessment:
+• Financial / Asset Recovery Chance: ${upiList || bankList ? 'High (if account freeze notice issued within 24 hours)' : 'Moderate (requires bank audit)'}
+• Evidence Reliability Index: ${currentCase.investigation_score || 80}%
+• Priority Directive: Execute immediate debit freeze to maximize asset recovery.`;
 
-  // 7. Main Findings Queries
-  } else if (query.includes("finding") || query.includes("main finding") || query.includes("key finding")) {
-    answer = `Key Investigation Findings for Case ${currentCase.id} (${type}):
+  // 12. Three Major Points / Key Points Queries
+  } else if (query.includes("three") || query.includes("3") || query.includes("important point") || query.includes("key point") || query.includes("fact")) {
+    answer = `Three Key Investigation Points for Case ${currentCase.id}:
 
-1. Primary Incident Finding:
-Incident classified as '${type}' concerning victim ${victimName}. ${summaryText}
+1. Incident Classification:
+   Registered as '${type}' concerning victim ${victimName}. ${summaryText}
 
-2. Key Extracted Identifiers:
-Extracted parameters: ${phoneList ? 'Phone: ' + phoneList + '; ' : ''}${upiList ? 'UPI: ' + upiList + '; ' : ''}${bankList ? 'Bank: ' + bankList + '; ' : ''}${vehicleList ? 'Vehicle: ' + vehicleList + '; ' : 'Digital logs'}
-
-3. Priority Action Finding:
-Suggested immediate action: ${nextActionText}`;
-
-    evidence = `Supported by extracted parameters and complaint narrative logs.`;
-
-  // 8. Key Facts Queries
-  } else if (query.includes("fact") || query.includes("important fact") || query.includes("key fact")) {
-    answer = `Key Facts Logged for Case ${currentCase.id}:
-• File ID: ${currentCase.id}
-• Category: ${type}
-• Victim / Complainant: ${victimName}
-• Suspects: ${suspectList}
-• Identifiers: ${phoneList ? 'Phone ' + phoneList + ' ' : ''}${upiList ? 'UPI ' + upiList + ' ' : ''}${bankList ? 'Bank ' + bankList + ' ' : ''}${vehicleList ? 'Vehicle ' + vehicleList : ''}
-• Incident Summary: ${summaryText}`;
-
-  // 9. Three Major Points Queries
-  } else if (query.includes("three") || query.includes("3") || query.includes("important point")) {
-    answer = `Three Major Important Points for Case ${currentCase.id}:
-
-1. Incident Classification & Modus Operandi:
-Case ${currentCase.id} is registered as '${type}' concerning victim ${victimName}. ${summaryText}
-
-2. Primary Extracted Evidence:
-Key parameters: ${phoneList ? 'Phone: ' + phoneList + '; ' : ''}${upiList ? 'UPI: ' + upiList + '; ' : ''}${bankList ? 'Bank: ' + bankList + '; ' : ''}${vehicleList ? 'Vehicle: ' + vehicleList + '; ' : 'Complaint files'}
+2. Key Identifiers Logged:
+   ${phoneList ? 'Phone: ' + phoneList + ' | ' : ''}${upiList ? 'UPI: ' + upiList + ' | ' : ''}${bankList ? 'Bank: ' + bankList + ' | ' : ''}${vehicleList ? 'Vehicle: ' + vehicleList : 'Complaint records'}
 
 3. Immediate Priority Action:
-${nextActionText}`;
+   ${nextActionText}`;
 
-  // 10. Summary Queries
-  } else if (query.includes("summary") || query.includes("summarize") || query.includes("overview")) {
-    answer = `Executive Summary for Case ${currentCase.id}:
-Case ${currentCase.id} is an active ${type} investigation. ${summaryText} Key endpoints: ${phoneList ? 'Phone: ' + phoneList + ' ' : ''}${upiList ? 'UPI: ' + upiList + ' ' : ''}${bankList ? 'Bank: ' + bankList + ' ' : ''}${vehicleList ? 'Vehicle: ' + vehicleList : ''}. Priority next step: ${nextActionText}`;
-
-  // 11. Reasoning / Why Queries
-  } else if (query === "why?" || query === "why" || query.includes("explain why") || query.includes("reason")) {
-    answer = `Advisory Reasoning Path for Case ${currentCase.id} (${type}):
-The recommendation of "${nextActionText}" is established by CrimeLens reasoning core based on active guideline SOPs and parameters extracted for ${type}.`;
-    reasoning = reasoningTree.map(n => n.evidence_trace).join(" -> ");
-
-  // 12. Dynamic Contextual Fallback (Catch-all for any question)
+  // 13. Dynamic Catch-all Fallback
   } else {
     answer = `Investigative Advisory for Case ${currentCase.id} (${type}):
-Concerning victim ${victimName}. ${summaryText} Key parameters: ${phoneList ? 'Phone: ' + phoneList + '; ' : ''}${upiList ? 'UPI: ' + upiList + '; ' : ''}${bankList ? 'Bank: ' + bankList + '; ' : ''}${vehicleList ? 'Vehicle: ' + vehicleList + '; ' : ''} Recommended next step: ${nextActionText}`;
+• Victim: ${victimName}
+• Incident Summary: ${summaryText}
+• Key Identifiers: ${phoneList ? 'Phone: ' + phoneList + ' ' : ''}${upiList ? 'UPI: ' + upiList + ' ' : ''}${bankList ? 'Bank: ' + bankList + ' ' : ''}${vehicleList ? 'Vehicle: ' + vehicleList : ''}
+• Priority Action: ${nextActionText}`;
   }
 
   if (lang === "kn") {
@@ -244,35 +293,38 @@ export const askCopilot = async (questionText, currentCase, allCases = [], lang 
   const strategy = generateInvestigationStrategy(currentCase);
   const contradictions = detectContradictions(currentCase, allCases);
   const reliability = calculateEvidenceReliability(currentCase);
-  const reasoningTree = getReasoningTree(currentCase);
 
-  const prompt = `System: You are CrimeLens Copilot, an AI-assisted reasoning layer for the Karnataka State Police (KSP) investigation workspace.
+  const prompt = `System: You are CrimeLens Copilot, an elite AI-assisted police reasoning assistant for the Karnataka State Police (KSP) investigation workspace.
 
-RULES & POLICY:
-1. You NEVER solve cases, determine guilt, make legal conclusions, or name suspects as criminals.
+ROLE & POLICY:
+1. You act as an experienced police detective and intelligence analyst assisting the investigating officer.
 2. NEVER use forbidden words: "guilty", "criminal", "solved", "confirmed", "proved", "definitely".
 3. Use ONLY advisory and probabilistic language: "suggested", "likely", "possible", "may indicate", "requires verification", "advisory".
-4. The CrimeLens internal engines provided below are the primary source of truth. Explain and summarize their findings clearly.
-5. Answer the officer's question directly using the specific case context below:
-   - For vehicle queries: State vehicle license plate and details logged for THIS case (or state if no vehicle logged).
-   - For medical/injury queries: State medical assessment status for THIS case.
-   - For SOP/guidelines: State applicable guidelines and precedents for THIS case.
-   - For main findings, 3 points, or summary: Provide a structured breakdown tailored specifically to THIS case.
-6. ALWAYS remind the user: "The AI assists. The investigating officer remains the final decision maker."
-7. Keep response concise (under 250 words).
+4. DYNAMIC RESPONSE STRUCTURE BASED ON OFFICER INTENT:
+   - For Summary / Case Overview: Concise bullet list (Victim, Loss Vector, Channel, Handles, Key Action).
+   - For Missing Evidence / Gaps: Evidence Checklist with specific missing items and reasons for each.
+   - For Contradictions / Discrepancies: Detected inconsistencies (e.g. monetary discrepancy, timeline gaps).
+   - For Investigation Plan / Action Plan: Numbered priority steps (Priority 1, Priority 2, etc.).
+   - For Suspect Analysis / Interrogation: Ranked suspects/targets with clear justification for who to interrogate first.
+   - For Applicable Laws / Sections: Relevant BNS/IPC sections and procedural guidelines with explanations.
+   - For Crime Pattern / Modus Operandi: MO breakdown comparing active case to historical landmark patterns.
+   - For Timeline / Sequence: Chronological step-by-step event reconstruction.
+   - For Recovery Probability / Risk: Recovery likelihood and risk factor evaluation.
+5. Base all answers strictly on the active case context below. Never reuse responses from other cases.
 
-STRUCTURED CRIMELENS ENGINE OUTPUTS:
+ACTIVE CASE FILE CONTEXT:
 - Case ID: ${currentCase.id} (${currentCase.incident_type || 'General'})
 - Summary: ${currentCase.summary || 'N/A'}
 - Victim: ${currentCase.victim || 'Complainant'}
 - Witnesses: ${JSON.stringify(currentCase.witnesses || [])}
 - Suspects: ${JSON.stringify(currentCase.suspects || [])}
-- Vehicle Vectors: ${JSON.stringify(currentCase.vehicles || currentCase.entities?.vehicles || [])}
+- Vehicles: ${JSON.stringify(currentCase.vehicles || currentCase.entities?.vehicles || [])}
 - Extracted Entities: ${JSON.stringify(currentCase.entities || {})}
 - Timeline Events: ${JSON.stringify(currentCase.timeline || [])}
-- Historical Landmark Matches: ${JSON.stringify(scrbResults.landmarks.map(l => ({ id: l.id, title: l.title, similarity: l.similarity })))}
-- Police Guidelines / SOPs: ${JSON.stringify(scrbResults.guidelines.map(g => g.title))}
-- Legal Precedents / Principles: ${JSON.stringify(scrbResults.precedents.map(p => ({ title: p.title, principle: p.relevant_principle })))}
+- Missing Evidence Audit: ${JSON.stringify(reliability.missing_evidence || [])}
+- Landmark Matches: ${JSON.stringify(scrbResults.landmarks.map(l => ({ id: l.id, title: l.title })))}
+- SOP Guidelines: ${JSON.stringify(scrbResults.guidelines.map(g => g.title))}
+- Legal Precedents: ${JSON.stringify(scrbResults.precedents.map(p => ({ title: p.title, principle: p.relevant_principle })))}
 - Strategy Recommendations: ${JSON.stringify(strategy.immediate_actions || [])}
 
 OFFICER QUESTION: "${questionText}"
@@ -280,12 +332,12 @@ RESPONSE LANGUAGE: ${lang === 'kn' ? 'Kannada' : 'English'}
 
 Return ONLY a valid JSON object matching this schema. Do NOT use markdown code fences.
 {
-  "answer": "Case-specific natural language answer directly addressing the officer's question.",
-  "evidence": "Brief list of supporting evidence items.",
+  "answer": "Case-specific answer formatted dynamically with clear bullet points, lists, or checklists matching the officer's exact question.",
+  "evidence": "${(currentCase.evidence?.documents || []).concat(currentCase.evidence?.photos?.map(p=>p.name) || []).join(', ') || 'Complaint logs'}",
   "matches": "${scrbResults.landmarks.map(m => m.id).join(', ') || 'None'}",
   "guideline": "${scrbResults.guidelines.map(g => g.title).join('; ') || 'Standard SOP'}",
   "precedent": "${scrbResults.precedents.map(p => p.relevant_principle).join('; ') || 'Standard Procedure'}",
-  "reasoning": "Explanation of the reasoning chain from CrimeLens engines.",
+  "reasoning": "Reasoning chain evaluated from active case parameters.",
   "confidence": "Likely",
   "next_action": "${strategy.immediate_actions?.[0]?.recommendation || 'Verify complaint parameters.'}"
 }`;
