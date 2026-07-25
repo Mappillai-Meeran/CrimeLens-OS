@@ -60,34 +60,52 @@ export const askCopilotRuleBased = (questionText, currentCase, allCases = [], la
   let confidence = "Likely";
   let next_action = nextActionText;
 
-  // Intent Detection & Case-Specific Natural Language Handling
-  if (
-    query.includes("important") ||
-    query.includes("three") ||
-    query.includes("3") ||
-    query.includes("point") ||
-    query.includes("summary") ||
-    query.includes("summarize") ||
-    query.includes("finding") ||
-    query.includes("fact") ||
-    query.includes("observation") ||
-    query.includes("about") ||
-    query.includes("overview") ||
-    query.includes("details")
-  ) {
-    answer = `Three major important points about Case ${currentCase.id}:
+  // ── Specific Natural Language Intent Handlers ──────────────────────────────
+  if (query.includes("finding") || query.includes("main finding") || query.includes("key finding")) {
+    answer = `Key Investigation Findings for Case ${currentCase.id}:
+
+1. Primary Incident Finding:
+Incident classified as '${type}' involving victim ${victimName}. ${summaryText}
+
+2. Evidence & Identifier Findings:
+Extracted digital footprints include: ${upiList !== 'N/A' ? 'UPI Handle: ' + upiList + '; ' : ''}${phoneList !== 'N/A' ? 'Phone: ' + phoneList + '; ' : ''}${bankList !== 'N/A' ? 'Bank Account: ' + bankList + '; ' : ''}${vehicleList !== 'N/A' ? 'Vehicle: ' + vehicleList + '; ' : ''} Primary evidence points to online impersonation and fraudulent fund collection.
+
+3. Procedural & Priority Findings:
+The highest priority action is: ${nextActionText} Immediate preservation of chat screenshots and bank transaction logs under Sec 65B is required.`;
+
+    evidence = `Findings supported by: ${upiList !== 'N/A' ? 'UPI (' + upiList + '), ' : ''}${phoneList !== 'N/A' ? 'Phone (' + phoneList + '), ' : ''}Complaint Statements`;
+    reasoning = `Synthesized key investigation findings for case ${currentCase.id} from entity extraction, timeline events, and strategy recommendations.`;
+
+  } else if (query.includes("fact") || query.includes("important fact") || query.includes("key fact")) {
+    answer = `Key Facts Logged for Case ${currentCase.id}:
+
+• Complaint File ID: ${currentCase.id}
+• Category & Type: ${type}
+• Victim / Complainant: ${victimName}
+• Suspect Info: ${suspectList}
+• Extracted Communications: ${phoneList !== 'N/A' ? 'Phone ' + phoneList : 'N/A'}
+• Payment Identifiers: ${upiList !== 'N/A' ? 'UPI ' + upiList : bankList !== 'N/A' ? 'Bank ' + bankList : 'N/A'}
+• Summary of Incident: ${summaryText}`;
+
+    evidence = `Verified facts from complaint file ${currentCase.id}`;
+
+  } else if (query.includes("three") || query.includes("3") || query.includes("important point")) {
+    answer = `Three Major Important Points for Case ${currentCase.id}:
 
 1. Incident Classification & Modus Operandi:
-The case is registered as '${type}' involving victim ${victimName}. ${summaryText}
+Registered as '${type}' involving victim ${victimName}. ${summaryText}
 
 2. Primary Digital & Financial Evidence:
-Key extracted indicators include ${upiList !== 'N/A' ? 'UPI Handle: ' + upiList + '; ' : ''}${phoneList !== 'N/A' ? 'Phone: ' + phoneList + '; ' : ''}${bankList !== 'N/A' ? 'Bank Account: ' + bankList + '; ' : ''}${vehicleList !== 'N/A' ? 'Vehicle: ' + vehicleList + '; ' : ''}. These serve as primary tracing vectors for offender identification.
+Key extracted indicators include ${upiList !== 'N/A' ? 'UPI Handle: ' + upiList + '; ' : ''}${phoneList !== 'N/A' ? 'Phone: ' + phoneList + '; ' : ''}${bankList !== 'N/A' ? 'Bank Account: ' + bankList + '; ' : ''}${vehicleList !== 'N/A' ? 'Vehicle: ' + vehicleList + '; ' : ''} for tracing the offender.
 
 3. Immediate Investigative Priority:
-Suggested priority action: ${nextActionText} Secure certified statements, freeze beneficiary accounts, and preserve digital chat logs under Sec 65B Certificate.`;
+Suggested priority action: ${nextActionText} Secure certified statements and freeze beneficiary accounts under Sec 65B.`;
 
-    evidence = `Primary evidence: ${upiList !== 'N/A' ? 'UPI (' + upiList + '), ' : ''}${phoneList !== 'N/A' ? 'Phone (' + phoneList + '), ' : ''}Complaint Narrative`;
-    reasoning = `Synthesized 3 key investigative points from case ${currentCase.id} parameters, entity extraction, and SCRB SOP recommendations.`;
+    evidence = `Supported by extracted entities and complaint narrative logs.`;
+
+  } else if (query.includes("summary") || query.includes("summarize") || query.includes("overview")) {
+    answer = `Executive Summary for Case ${currentCase.id}:
+Case ${currentCase.id} is an active ${type} investigation initiated by ${victimName}. ${summaryText} Suspect indicators log contact numbers (${phoneList}) and payment routes (${upiList}). Primary next step: ${nextActionText}`;
 
   } else if (query === "why?" || query === "why" || query.includes("explain why") || query.includes("reason")) {
     answer = `Advisory reasoning path details: The recommendation of "${nextActionText}" is proposed based on active guidelines. Node traces follow: Complaint -> Entities -> Timeline -> Evidence -> Decision.`;
@@ -181,10 +199,11 @@ RULES & POLICY:
 2. NEVER use forbidden words: "guilty", "criminal", "solved", "confirmed", "proved", "definitely".
 3. Use ONLY advisory and probabilistic language: "suggested", "likely", "possible", "may indicate", "requires verification", "advisory".
 4. The CrimeLens internal engines provided below are the primary source of truth. Explain and summarize their findings clearly.
-5. If the officer asks for key points, summary, important facts, findings, or observations (e.g. "What are three major important points about this case?", "Summarize this case", "Key findings"), YOU MUST provide a clear, structured, case-specific 3-point answer analyzing:
-   Point 1: Incident & Modus Operandi
-   Point 2: Key Extracted Digital & Financial Evidence
-   Point 3: Immediate Investigative Priority & Next Actions
+5. Tailor your response heading and content directly to the officer's question:
+   - If asked for "main findings" or "key findings": Provide a "Key Investigation Findings for Case [ID]" breakdown.
+   - If asked for "important facts": Provide a "Key Facts Logged for Case [ID]" breakdown.
+   - If asked for "three major points": Provide a "Three Major Important Points for Case [ID]" breakdown.
+   - If asked to "summarize": Provide an "Executive Summary for Case [ID]".
 6. ALWAYS remind the user: "The AI assists. The investigating officer remains the final decision maker."
 7. Keep response concise (under 250 words).
 
