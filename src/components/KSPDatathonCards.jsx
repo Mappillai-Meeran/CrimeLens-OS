@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { fetchCatalystUserAuth } from '../services/catalystAuthService';
 import {
   Shield,
   ShieldAlert,
@@ -409,14 +410,26 @@ export function EarlyWarningBanner({ currentCase, cases = [] }) {
 
 // ─── 9. ROLE-BASED AUTH BADGE ───────────────────────────────────────────────
 export function RoleBasedAuthBadge() {
-  const auth = getRoleBasedAccessInfo();
+  const [userRole, setUserRole] = useState('Investigating Officer');
+  const [status, setStatus] = useState('Catalyst Auth Ready');
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchCatalystUserAuth().then(authData => {
+      if (isMounted && authData && authData.role_name) {
+        setUserRole(authData.role_name);
+        setStatus(authData.authenticated ? 'Catalyst Authenticated' : 'Catalyst Auth Ready');
+      }
+    });
+    return () => { isMounted = false; };
+  }, []);
 
   return (
     <div className="flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 px-2 py-1 rounded-md text-[8.5px] font-mono">
       <Lock className="w-3 h-3 text-cyan-400" />
-      <span className="text-gray-300 font-bold">{auth.userRole}</span>
+      <span className="text-gray-300 font-bold">{userRole}</span>
       <span className="text-gray-600">|</span>
-      <span className="text-emerald-400 text-[8px]">{auth.catalystStatus}</span>
+      <span className="text-emerald-400 text-[8px]">{status}</span>
     </div>
   );
 }
