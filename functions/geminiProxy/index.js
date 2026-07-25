@@ -21,7 +21,6 @@ try {
 } catch (e) {}
 
 const app = express();
-app.use(express.json({ limit: '10mb' }));
 
 // Enable CORS for frontend requests
 app.use((req, res, next) => {
@@ -30,6 +29,19 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
+  }
+  next();
+});
+app.use(express.json({ limit: '10mb' }));
+app.use(express.text({ type: 'text/plain', limit: '10mb' }));
+
+app.use((req, res, next) => {
+  if (typeof req.body === 'string' && req.body.trim()) {
+    try {
+      req.body = JSON.parse(req.body);
+    } catch (err) {
+      return res.status(400).json({ success: false, error: 'Invalid JSON request body.' });
+    }
   }
   next();
 });

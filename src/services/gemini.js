@@ -302,11 +302,13 @@ export const extractEvidence = async (text, filename = "manual_notes.txt") => {
   }
 
   // ── Step 2: Live Gemini API via Zoho Catalyst Serverless HTTP Function (geminiProxy) ──
+  const configuredProxyUrl = import.meta.env.VITE_CATALYST_PROXY_URL;
+  const knownLiveProxyUrl = 'https://project-rainfall-60073743483.development.catalystserverless.in/server/geminiProxy/';
   const proxyEndpoints = Array.from(new Set([
-    import.meta.env.VITE_CATALYST_PROXY_URL,
-    '/server/geminiProxy',
-    'https://project-rainfall-60073743483.development.catalystserverless.in/server/geminiProxy/'
-  ].filter(Boolean)));
+    configuredProxyUrl,
+    knownLiveProxyUrl,
+    '/server/geminiProxy/'
+  ].filter(Boolean).map(url => url.endsWith('/') ? url : `${url}/`)));
 
   const prompt = `Analyze the following crime incident description or evidence and extract all relevant entities, metadata, and a chronological event timeline.
 
@@ -341,7 +343,7 @@ ${text}
     try {
       const result = await fetchWithRetry(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
         body: JSON.stringify({
           action: 'extract',
           text,

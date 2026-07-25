@@ -314,12 +314,15 @@ Return ONLY a valid JSON object matching this schema. Do NOT use markdown code f
   "next_action": "${strategy.immediate_actions?.[0]?.recommendation || 'Verify complaint parameters.'}"
 }`;
 
-  // Candidate proxy endpoints: configured env, relative path, and direct Catalyst function URL
+  const configuredProxyUrl = import.meta.env.VITE_CATALYST_PROXY_URL;
+  const knownLiveProxyUrl = 'https://project-rainfall-60073743483.development.catalystserverless.in/server/geminiProxy/';
+
+  // Try the deployed Catalyst function first because local /server requires a dev proxy.
   const proxyEndpoints = Array.from(new Set([
-    import.meta.env.VITE_CATALYST_PROXY_URL,
-    '/server/geminiProxy',
-    'https://project-rainfall-60073743483.development.catalystserverless.in/server/geminiProxy/'
-  ].filter(Boolean)));
+    configuredProxyUrl,
+    knownLiveProxyUrl,
+    '/server/geminiProxy/'
+  ].filter(Boolean).map(url => url.endsWith('/') ? url : `${url}/`)));
   const proxyErrors = [];
 
   // ── Step 1: Try Catalyst Serverless Function Proxy ──
@@ -327,7 +330,7 @@ Return ONLY a valid JSON object matching this schema. Do NOT use markdown code f
     try {
       const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
         body: JSON.stringify({
           action: 'copilot',
           prompt
@@ -346,7 +349,7 @@ Return ONLY a valid JSON object matching this schema. Do NOT use markdown code f
             matches: parsed.matches || scrbResults.landmarks.map(m => m.id).join(", "),
             guideline: parsed.guideline || scrbResults.guidelines.map(g => `${g.title} SOP`).join("; "),
             precedent: parsed.precedent || scrbResults.precedents.map(p => p.relevant_principle).join("; "),
-            reasoning: parsed.reasoning || "Reasoning chain evaluated from parameters.",
+            reasoning: `${parsed.reasoning || "Reasoning chain evaluated from parameters."} Live Gemini response via ${endpoint}`,
             confidence: parsed.confidence || "Likely",
             next_action: parsed.next_action || strategy.immediate_actions?.[0]?.recommendation || "Verify parameters."
           };
