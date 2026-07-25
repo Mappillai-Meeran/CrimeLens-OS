@@ -119,11 +119,6 @@ app.post('/', async (req, res) => {
       return res.json({ status: 'ok', live: true });
     }
 
-  try {
-    if (action === 'health') {
-      return res.json({ status: 'ok', live: true });
-    }
-
     // ── Task 1: Catalyst Data Store Integration Actions ──
     if (action === 'datastore_save' || action === 'datastore_update') {
       if (!caseData || !caseData.id) {
