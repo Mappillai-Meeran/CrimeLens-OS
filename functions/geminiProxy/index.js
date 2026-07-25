@@ -46,7 +46,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// In-memory fallback cache for investigations (if Data Store table is offline or initializing)
+// In-memory fallback cache for investigations
 const memoryInvestigationsStore = new Map();
 
 // Helper to get Catalyst Data Store Table
@@ -91,18 +91,18 @@ async function getCatalystUserAuth(req) {
 }
 
 function getGeminiApiKey() {
-  return process.env.GEMINI_API_KEY;
+  return process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_KEY || process.env.VITE_GEMINI_API_KEY;
 }
 
 function getGeminiModel() {
-  return process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  // gemini-2.0-flash is stable and available for all API keys
+  return process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 }
 
 // Helper function to call Gemini REST API
 async function callGeminiAPI(apiKey, promptText) {
   const model = getGeminiModel();
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey.trim()}`;
-  
 
   const response = await fetch(apiUrl, {
     method: 'POST',
@@ -115,7 +115,6 @@ async function callGeminiAPI(apiKey, promptText) {
     })
   });
 
-
   if (!response.ok) {
     const errText = await response.text();
     throw new Error(`Gemini API HTTP ${response.status}: ${errText}`);
@@ -125,7 +124,7 @@ async function callGeminiAPI(apiKey, promptText) {
   const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
   if (!rawText) {
-    throw new Error("Empty response from Gemini API");
+    throw new Error('Empty response from Gemini API');
   }
 
   const cleaned = rawText
@@ -147,8 +146,8 @@ async function callGeminiAPI(apiKey, promptText) {
     // Safe object fallback
     return {
       answer: cleaned,
-      evidence: "Complaint parameters",
-      confidence: "Likely"
+      evidence: 'Complaint parameters',
+      confidence: 'Likely'
     };
   }
 }
@@ -167,7 +166,6 @@ app.get('/health', (req, res) => {
 app.post('/', async (req, res) => {
   const { action, text, filename, prompt, caseData, caseId, query } = req.body || {};
   const apiKey = getGeminiApiKey();
-
 
   try {
     if (action === 'health') {
@@ -228,7 +226,7 @@ app.post('/', async (req, res) => {
       if (table) {
         try {
           const catalystApp = catalyst.initialize(req);
-          const zqlResponse = await catalystApp.zcql().executeZCQLQuery("SELECT * FROM Crime_OS");
+          const zqlResponse = await catalystApp.zcql().executeZCQLQuery('SELECT * FROM Crime_OS');
           const rows = zqlResponse.map(r => r.Crime_OS);
           if (rows && rows.length > 0) {
             return res.json({ success: true, data: rows, source: 'Catalyst Data Store' });
