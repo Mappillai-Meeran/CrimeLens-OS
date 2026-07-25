@@ -261,6 +261,299 @@ const EXPANDED_DEMO_CASES = [
     confidence: "96%",
     investigation_score: 90,
     created_at: "2026-06-26T15:00:00.000Z"
+  },
+  {
+    id: "COMP-006",
+    officer: "OFFICER-842",
+    status: "Active",
+    incident_type: "Vehicle Theft",
+    victim: "Anand Nagaraj",
+    suspects: ["Ravi D. (identified via CCTV)", "Mohan S. (accomplice)"],
+    witnesses: ["Parking Attendant Ganesh", "Security Guard Venkatesh"],
+    evidence: {
+      photos: [{ name: "parking_cctv_frame_03.jpg", type: "image/jpeg", date: "2026-07-01", size: "512 KB", desc: "Suspect entering victim's vehicle" }],
+      videos: [{ name: "building_cctv.mp4", type: "video/mp4", duration: "2m14s", desc: "Full extraction sequence from basement parking" }],
+      audio: [],
+      documents: ["vehicle_theft_anand.txt"]
+    },
+    timeline: [
+      { date: "2026-07-01 11:00 PM", event: "Anand Nagaraj parked silver Honda City (KA-03-TY-8821) in Prestige Tower B2 basement", source: "Victim statement" },
+      { date: "2026-07-02 02:22 AM", event: "Suspects Ravi D. and Mohan S. hot-wired vehicle and fled via north exit", source: "CCTV footage" },
+      { date: "2026-07-02 07:00 AM", event: "Anand Nagaraj reported vehicle missing to Rajajinagar PS", source: "FIR Record" },
+      { date: "2026-07-02 09:30 AM", event: "Vehicle spotted near Nelamangala bypass — not yet recovered", source: "Traffic Patrol Report" }
+    ],
+    entities: {
+      names: ["Anand Nagaraj", "Ravi D.", "Mohan S.", "Ganesh", "Venkatesh"],
+      phones: ["+91-9845001234"],
+      upi_ids: [],
+      bank_accounts: [],
+      locations: ["Rajajinagar", "Prestige Tower B2", "Nelamangala Bypass"],
+      dates: ["2026-07-01", "2026-07-02"],
+      amounts: ["₹9,50,000"],
+      vehicles: ["KA-03-TY-8821"],
+      urls: [],
+      usernames: []
+    },
+    locations: ["Rajajinagar", "Nelamangala"],
+    money_trail: [],
+    vehicles: ["KA-03-TY-8821"],
+    relationships: [
+      { source: "Anand Nagaraj", target: "KA-03-TY-8821", type: "Owner", description: "Registered owner of stolen Honda City." },
+      { source: "Ravi D.", target: "KA-03-TY-8821", type: "Stole", description: "Identified on CCTV hot-wiring vehicle." },
+      { source: "Ravi D.", target: "Mohan S.", type: "Accomplice", description: "Both entered parking and fled together." }
+    ],
+    notes: [{ author: "OFFICER-842", date: "2026-07-02 10:00 AM", text: "RTO confirmed KA-03-TY-8821 belongs to victim. BSNL tower data requested for suspect phone." }],
+    summary: "Silver Honda City (KA-03-TY-8821) stolen from Prestige Tower basement at 2:22 AM by suspects Ravi D. and Mohan S. CCTV confirms primary suspect identity. Vehicle worth ₹9.5L.",
+    confidence: "94%",
+    investigation_score: 81,
+    station: "Rajajinagar PS",
+    district: "Bengaluru Urban",
+    created_at: "2026-07-02T07:00:00.000Z"
+  },
+  {
+    id: "COMP-007",
+    officer: "OFFICER-953",
+    status: "Active",
+    incident_type: "Domestic Violence",
+    victim: "Shanthi B.",
+    suspects: ["Raju B. (Husband)"],
+    witnesses: ["Dr. Meena (Treating Physician)", "Neighbour Lakshmi"],
+    evidence: {
+      photos: [{ name: "injury_medical_photo_01.jpg", type: "image/jpeg", date: "2026-07-03", size: "220 KB", desc: "Bruises on left arm and face" }],
+      videos: [],
+      audio: [{ name: "neighbor_complaint_audio.wav", type: "audio/wav", duration: "5m30s", desc: "Neighbour describing sounds heard" }],
+      documents: ["domestic_violence_shanthi.txt"]
+    },
+    timeline: [
+      { date: "2026-07-03 09:00 PM", event: "Raju B. arrived home inebriated and began altercation", source: "Neighbour Lakshmi" },
+      { date: "2026-07-03 09:15 PM", event: "Physical assault — Shanthi sustained injuries to face and left arm", source: "Medical Report" },
+      { date: "2026-07-03 09:20 PM", event: "Neighbour Lakshmi called Mysuru PCR", source: "PCR Log" },
+      { date: "2026-07-04 10:00 AM", event: "Shanthi admitted to Kidwai Hospital; medico-legal case opened", source: "Hospital Records" }
+    ],
+    entities: {
+      names: ["Shanthi B.", "Raju B.", "Dr. Meena", "Lakshmi"],
+      phones: ["+91-9900887766"],
+      upi_ids: [],
+      bank_accounts: [],
+      locations: ["Saraswathipuram", "Mysuru", "Kidwai Hospital"],
+      dates: ["2026-07-03", "2026-07-04"],
+      amounts: [],
+      vehicles: [],
+      urls: [],
+      usernames: []
+    },
+    locations: ["Saraswathipuram", "Mysuru"],
+    money_trail: [],
+    vehicles: [],
+    relationships: [
+      { source: "Raju B.", target: "Shanthi B.", type: "Assaulted", description: "Husband physically assaulted wife." },
+      { source: "Lakshmi", target: "Shanthi B.", type: "Witness", description: "Neighbour who reported the incident." },
+      { source: "Dr. Meena", target: "Shanthi B.", type: "Treating Physician", description: "MLC registered at Kidwai Hospital." }
+    ],
+    notes: [{ author: "OFFICER-953", date: "2026-07-04 11:00 AM", text: "Victim requested shelter home. BNS Section 115(2) applicable. Coordinating with Women's Commission Mysuru." }],
+    summary: "Domestic violence in Mysuru — Shanthi B. sustained injuries from husband Raju B. Medico-legal case registered. Suspect in custody. Women's Commission alerted.",
+    confidence: "97%",
+    investigation_score: 92,
+    station: "Saraswathipuram PS",
+    district: "Mysuru",
+    created_at: "2026-07-04T10:00:00.000Z"
+  },
+  {
+    id: "COMP-008",
+    officer: "OFFICER-612",
+    status: "Active",
+    incident_type: "Cyber Fraud",
+    victim: "Manjunath T.",
+    suspects: ["Fake Trading Platform @TradeProfitKing", "Accomplice +91-8765432109"],
+    witnesses: [],
+    evidence: {
+      photos: [{ name: "fake_trading_app.png", type: "image/png", date: "2026-07-05", size: "430 KB", desc: "Screenshot of counterfeit broker app" }],
+      videos: [],
+      audio: [],
+      documents: ["investment_fraud_manju.txt"]
+    },
+    timeline: [
+      { date: "2026-07-01", event: "Discovered Telegram channel @TradeProfitKing promising 40% monthly returns", source: "Victim statement" },
+      { date: "2026-07-02", event: "Invested ₹50,000 via NEFT to HDFC account 123456789012", source: "Bank records" },
+      { date: "2026-07-05", event: "Invested additional ₹1,20,000 — total ₹1,70,000", source: "NEFT records" },
+      { date: "2026-07-07", event: "Withdrawal blocked; app went offline; Telegram channel deleted", source: "Victim statement" }
+    ],
+    entities: {
+      names: ["Manjunath T."],
+      phones: ["+91-8765432109"],
+      upi_ids: ["tradekingpro@axl"],
+      bank_accounts: ["123456789012"],
+      locations: ["Hubli", "Online — Telegram"],
+      dates: ["2026-07-01", "2026-07-07"],
+      amounts: ["₹1,70,000"],
+      vehicles: [],
+      urls: ["t.me/TradeProfitKing"],
+      usernames: ["@TradeProfitKing"]
+    },
+    locations: ["Hubli"],
+    money_trail: [
+      { sender: "Manjunath T.", receiver: "HDFC Account 123456789012", amount: "₹50,000", upi: "N/A", bank_account: "123456789012", timestamp: "2026-07-02" },
+      { sender: "Manjunath T.", receiver: "tradekingpro@axl", amount: "₹1,20,000", upi: "tradekingpro@axl", bank_account: "N/A", timestamp: "2026-07-05" }
+    ],
+    vehicles: [],
+    relationships: [
+      { source: "Manjunath T.", target: "@TradeProfitKing", type: "Victim of Fraud", description: "Deceived by fake investment returns." },
+      { source: "Manjunath T.", target: "123456789012", type: "Transferred Funds", description: "₹50,000 NEFT to suspect HDFC account." }
+    ],
+    notes: [{ author: "OFFICER-612", date: "2026-07-08 09:00 AM", text: "HDFC account flagged to CBI Cyber Wing. Telegram handle referred to CERT-In for takedown." }],
+    summary: "Investment fraud ₹1,70,000 — Hubli victim Manjunath T. deceived by fake trading Telegram channel @TradeProfitKing promising 40% returns. App disappeared with funds.",
+    confidence: "96%",
+    investigation_score: 75,
+    station: "Hubli Cyber PS",
+    district: "Dharwad",
+    created_at: "2026-07-08T09:00:00.000Z"
+  },
+  {
+    id: "COMP-009",
+    officer: "OFFICER-334",
+    status: "Active",
+    incident_type: "Cyber Fraud",
+    victim: "Dr. Padmavathi S.",
+    suspects: ["KYC Phisher +91-7766554433", "SBI Impersonator"],
+    witnesses: [],
+    evidence: {
+      photos: [{ name: "fake_sbi_sms.png", type: "image/png", date: "2026-07-10", size: "80 KB", desc: "Fake SBI KYC update SMS" }],
+      videos: [],
+      audio: [],
+      documents: ["kyc_fraud_padmavathi.txt"]
+    },
+    timeline: [
+      { date: "2026-07-10 03:00 PM", event: "Received SMS from spoofed SBI number requesting KYC update via phishing link", source: "Victim's mobile" },
+      { date: "2026-07-10 03:10 PM", event: "Victim entered OTP and debit card details on fake site", source: "Victim statement" },
+      { date: "2026-07-10 03:12 PM", event: "₹88,500 debited from SBI account 445566778899 in 3 transactions within 2 minutes", source: "SBI SMS" },
+      { date: "2026-07-10 03:20 PM", event: "Victim called SBI helpline — account frozen within 10 minutes", source: "SBI records" }
+    ],
+    entities: {
+      names: ["Dr. Padmavathi S."],
+      phones: ["+91-7766554433", "+91-9988123456"],
+      upi_ids: ["payfraud@paytm"],
+      bank_accounts: ["445566778899"],
+      locations: ["Mangaluru", "Online"],
+      dates: ["2026-07-10"],
+      amounts: ["₹88,500"],
+      vehicles: [],
+      urls: ["bit.ly/sbi-kyc-upd8"],
+      usernames: []
+    },
+    locations: ["Mangaluru"],
+    money_trail: [
+      { sender: "Dr. Padmavathi S.", receiver: "payfraud@paytm", amount: "₹88,500", upi: "payfraud@paytm", bank_account: "445566778899", timestamp: "2026-07-10 03:12 PM" }
+    ],
+    vehicles: [],
+    relationships: [
+      { source: "Dr. Padmavathi S.", target: "+91-7766554433", type: "Phished By", description: "Fraudulent KYC SMS received from suspect." },
+      { source: "+91-7766554433", target: "payfraud@paytm", type: "Funds Routed", description: "Stolen funds transferred to suspect Paytm wallet." }
+    ],
+    notes: [{ author: "OFFICER-334", date: "2026-07-11 09:30 AM", text: "Phishing URL reported to CERT-In. SBI account frozen. Paytm wallet freeze requested." }],
+    summary: "KYC phishing fraud Mangaluru — ₹88,500 stolen from Dr. Padmavathi S. through fake SBI website. Funds moved via Paytm. Account frozen within 10 minutes of discovery.",
+    confidence: "99%",
+    investigation_score: 88,
+    station: "Mangaluru Cyber PS",
+    district: "Dakshina Kannada",
+    created_at: "2026-07-11T09:30:00.000Z"
+  },
+  {
+    id: "COMP-010",
+    officer: "OFFICER-519",
+    status: "Active",
+    incident_type: "Assault",
+    victim: "Mohammed Farhan",
+    suspects: ["Gang Leader Syed X (absconding)", "Aadil K. (arrested)", "Zafar M. (arrested)"],
+    witnesses: ["Tea Stall Vendor Raju", "Auto Driver Basavanna"],
+    evidence: {
+      photos: [{ name: "assault_site_photo.jpg", type: "image/jpeg", date: "2026-07-12", size: "420 KB", desc: "Scene evidence near City Market" }],
+      videos: [{ name: "street_cctv_assault.mp4", type: "video/mp4", duration: "47s", desc: "Suspects attacking victim with rods" }],
+      audio: [],
+      documents: ["gang_assault_farhan.txt"]
+    },
+    timeline: [
+      { date: "2026-07-12 07:33 PM", event: "3 suspects confronted Mohammed Farhan near City Market over property dispute", source: "Witness Raju" },
+      { date: "2026-07-12 07:35 PM", event: "Aadil K. and Zafar M. attacked victim with rods while Syed X supervised", source: "CCTV footage" },
+      { date: "2026-07-12 07:45 PM", event: "Farhan admitted to Victoria Hospital — fractured arm and head injury", source: "Hospital records" },
+      { date: "2026-07-12 10:00 PM", event: "Aadil K. and Zafar M. arrested near Shivajinagar. Syed X absconding.", source: "Shivajinagar PS" }
+    ],
+    entities: {
+      names: ["Mohammed Farhan", "Syed X", "Aadil K.", "Zafar M.", "Raju", "Basavanna"],
+      phones: ["+91-9843211234", "+91-8899001122"],
+      upi_ids: [],
+      bank_accounts: [],
+      locations: ["City Market", "Bengaluru", "Victoria Hospital", "Shivajinagar"],
+      dates: ["2026-07-12"],
+      amounts: [],
+      vehicles: ["KA-05-GH-3322"],
+      urls: [],
+      usernames: []
+    },
+    locations: ["City Market", "Bengaluru"],
+    money_trail: [],
+    vehicles: ["KA-05-GH-3322"],
+    relationships: [
+      { source: "Syed X", target: "Aadil K.", type: "Commands", description: "Gang leader directing assault." },
+      { source: "Syed X", target: "Zafar M.", type: "Commands", description: "Second suspect acting under orders." },
+      { source: "Aadil K.", target: "Mohammed Farhan", type: "Assaulted", description: "Attack with rod — arrested." },
+      { source: "Zafar M.", target: "Mohammed Farhan", type: "Assaulted", description: "Attack with rod — arrested." }
+    ],
+    notes: [{ author: "OFFICER-519", date: "2026-07-12 11:00 PM", text: "Lookout Circular issued for Syed X. Two suspects remanded to custody. BNS Section 115 applicable." }],
+    summary: "Organised gang assault at Bengaluru City Market. Three suspects attacked Mohammed Farhan with rods. Two arrested; gang leader Syed X absconding. Victim hospitalised.",
+    confidence: "98%",
+    investigation_score: 87,
+    station: "Shivajinagar PS",
+    district: "Bengaluru Central",
+    created_at: "2026-07-12T22:00:00.000Z"
+  },
+  {
+    id: "COMP-011",
+    officer: "OFFICER-771",
+    status: "Active",
+    incident_type: "Cyber Fraud",
+    victim: "Suma Reddy",
+    suspects: ["OLX Scammer +91-8800990011 (posing as Army Officer)"],
+    witnesses: [],
+    evidence: {
+      photos: [{ name: "olx_fake_listing.png", type: "image/png", date: "2026-07-14", size: "195 KB", desc: "Fake OLX furniture listing" }],
+      videos: [],
+      audio: [],
+      documents: ["olx_fraud_suma.txt"]
+    },
+    timeline: [
+      { date: "2026-07-14 11:00 AM", event: "Suma Reddy found sofa set on OLX by seller claiming to be Army Officer in Pune", source: "OLX platform" },
+      { date: "2026-07-14 11:35 AM", event: "₹4,500 advance transferred to officerdeal@gpay", source: "Google Pay transaction" },
+      { date: "2026-07-14 11:40 AM", event: "Seller demanded ₹9,000 more for 'Army Movement Clearance'. Victim refused.", source: "Chat screenshot" },
+      { date: "2026-07-14 12:00 PM", event: "OLX listing removed; seller blocked victim", source: "OLX platform" }
+    ],
+    entities: {
+      names: ["Suma Reddy"],
+      phones: ["+91-8800990011"],
+      upi_ids: ["officerdeal@gpay"],
+      bank_accounts: [],
+      locations: ["Belagavi", "Online — OLX"],
+      dates: ["2026-07-14"],
+      amounts: ["₹4,500"],
+      vehicles: [],
+      urls: ["olx.in/item/fake-sofa-001"],
+      usernames: []
+    },
+    locations: ["Belagavi"],
+    money_trail: [
+      { sender: "Suma Reddy", receiver: "officerdeal@gpay", amount: "₹4,500", upi: "officerdeal@gpay", bank_account: "N/A", timestamp: "2026-07-14 11:35 AM" }
+    ],
+    vehicles: [],
+    relationships: [
+      { source: "Suma Reddy", target: "+91-8800990011", type: "Defrauded By", description: "Army impersonator advance-fee fraud." },
+      { source: "+91-8800990011", target: "officerdeal@gpay", type: "Received Funds", description: "Advance payment collected before vanishing." }
+    ],
+    notes: [{ author: "OFFICER-771", date: "2026-07-15 09:00 AM", text: "OLX seller reported to OLX India fraud team. GPay handle reported to Google Pay fraud cell. BNS Section 319 (military impersonation) applicable." }],
+    summary: "OLX military impersonation fraud Belagavi — Suma Reddy defrauded ₹4,500 by scammer posing as Army Officer. Classic advance-fee fraud. UPI traced to officerdeal@gpay.",
+    confidence: "97%",
+    investigation_score: 79,
+    station: "Belagavi Cyber PS",
+    district: "Belagavi",
+    created_at: "2026-07-15T09:00:00.000Z"
   }
 ];
 
@@ -275,7 +568,9 @@ export const CaseProvider = ({ children }) => {
   useEffect(() => {
     let stored = localStorage.getItem('crimelens_complaints');
     let casesList = [];
-    if (!stored) {
+    // Re-seed if no data or if stored has fewer cases than current demo set (new cases added)
+    const parsed_check = stored ? JSON.parse(stored) : null;
+    if (!stored || (Array.isArray(parsed_check) && parsed_check.length < EXPANDED_DEMO_CASES.length)) {
       localStorage.setItem('crimelens_complaints', JSON.stringify(EXPANDED_DEMO_CASES));
       casesList = EXPANDED_DEMO_CASES;
     } else {

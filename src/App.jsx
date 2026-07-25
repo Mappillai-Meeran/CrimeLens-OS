@@ -215,7 +215,7 @@ export default function App() {
     contradiction: true,
     modusOperandi: true,
     activityLog: true,
-    auditTrail: true
+    auditTrail: false
   });
   const [lang, setLang] = useState('en'); // 'en' or 'kn'
   const [isMicActive, setIsMicActive] = useState(false);
